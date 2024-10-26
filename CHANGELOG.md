@@ -12,6 +12,12 @@ public DateOnly? DateOfBirth { get; set; }
 ### `asp-for` attributes
 The `asp-for` attributes have been deprecated; the `for` attribute should be used instead.
 
+### `gfa-prepend-error-summary` attribute
+The `gfa-prepend-error-summary` attribute on `FormErrorSummaryTagHelper` is now called `prepend-error-summary`.
+
+### `gfa-error-prefix` attribute
+The `gfa-error-prefix` attribute on `TitleTagHelper` is now called `error-prefix`.
+
 Fix duplicate `PathBase` in OpengraphImageUrl in page template view.
 
 ## 2.2.0
