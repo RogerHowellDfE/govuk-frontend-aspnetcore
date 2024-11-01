@@ -23,6 +23,9 @@ The `asp-for` attributes have been deprecated; the `for` attribute should be use
 ### `gfa-error-prefix` attribute
 The `gfa-error-prefix` attribute on `TitleTagHelper` is now called `error-prefix`.
 
+### `<govuk-error-message>` tag helper
+This tag helper has been removed.
+
 Fix duplicate `PathBase` in OpengraphImageUrl in page template view.
 
 ## 2.2.0
