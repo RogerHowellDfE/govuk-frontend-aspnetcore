@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using HtmlTags;
+using Microsoft.AspNetCore.Html;
 
 namespace GovUk.Frontend.AspNetCore.ComponentGeneration;
 
@@ -37,4 +38,7 @@ public partial class DefaultComponentGenerator : IComponentGenerator
 
     private static string? GetEncodedTextOrHtml(string? text, string? html) =>
         html.NormalizeEmptyString() ?? HtmlEncode(text);
+
+    private static IHtmlContent? GetEncodedTextOrHtml(string? text, IHtmlContent? html) =>
+        html.NormalizeEmptyString() ?? (text is not null ? new HtmlString(HtmlEncode(text)) : null);
 }

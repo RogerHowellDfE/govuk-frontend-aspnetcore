@@ -3,6 +3,7 @@ using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using GovUk.Frontend.AspNetCore.ComponentGeneration;
 using GovUk.Frontend.AspNetCore.TagHelpers;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Moq;
 using Xunit;
@@ -37,7 +38,7 @@ public class BackLinkTagHelperTests
             getChildContentAsync: (useCachedResult, encoder) =>
             {
                 var tagHelperContent = new DefaultTagHelperContent();
-                tagHelperContent.SetContent(content);
+                tagHelperContent.SetHtmlContent(content);
                 return Task.FromResult<TagHelperContent>(tagHelperContent);
             });
 
@@ -52,10 +53,10 @@ public class BackLinkTagHelperTests
 
         // Assert
         Assert.NotNull(actualOptions);
-        Assert.Equal(HtmlEncoder.Default.Encode(content), actualOptions!.Html);
+        Assert.Equal(content, actualOptions!.Html?.ToHtmlString());
         Assert.Null(actualOptions.Text);
-        Assert.Equal(href, actualOptions.Href);
-        Assert.Equal(classes, actualOptions.Classes);
+        Assert.Equal(href, actualOptions.Href?.ToHtmlString());
+        Assert.Equal(classes, actualOptions.Classes?.ToHtmlString());
         Assert.NotNull(actualOptions.Attributes);
         Assert.Collection(actualOptions.Attributes, kvp =>
         {

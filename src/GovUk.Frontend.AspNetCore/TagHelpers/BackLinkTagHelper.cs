@@ -33,7 +33,7 @@ public class BackLinkTagHelper : TagHelper
 
         if (output.TagMode == TagMode.StartTagAndEndTag)
         {
-            content = await output.GetChildContentAsync();
+            content = (await output.GetChildContentAsync()).Snapshot();
         }
 
         if (output.Content.IsModified)
@@ -41,18 +41,18 @@ public class BackLinkTagHelper : TagHelper
             content = output.Content;
         }
 
-        var attributes = output.Attributes.ToEncodedAttributeDictionary()
-            .Remove("class", out var classes)
-            .Remove("href", out var href);
+        var attributes = new EncodedAttributesDictionary(output.Attributes);
+        attributes.Remove("class", out var classes);
+        attributes.Remove("href", out var href);
 
         var component = _componentGenerator.GenerateBackLink(new BackLinkOptions()
         {
-            Html = content?.ToHtmlString(),
+            Html = content,
             Href = href,
             Classes = classes,
             Attributes = attributes
         });
 
-        output.WriteComponent(component);
+        component.WriteTo(output);
     }
 }
