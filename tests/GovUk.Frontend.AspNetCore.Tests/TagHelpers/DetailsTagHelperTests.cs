@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Threading.Tasks;
 using GovUk.Frontend.AspNetCore.ComponentGeneration;
 using GovUk.Frontend.AspNetCore.TagHelpers;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Moq;
 using Xunit;
@@ -39,9 +40,9 @@ public class DetailsTagHelperTests
             {
                 var detailsContext = context.GetContextItem<DetailsContext>();
 
-                detailsContext.SetSummary(ImmutableDictionary<string, string?>.Empty, summaryHtml);
+                detailsContext.SetSummary(new EncodedAttributesDictionary(), new HtmlString(summaryHtml));
 
-                detailsContext.SetText(ImmutableDictionary<string, string?>.Empty, content);
+                detailsContext.SetText(new EncodedAttributesDictionary(), new HtmlString(content));
 
                 var tagHelperContent = new DefaultTagHelperContent();
                 return Task.FromResult<TagHelperContent>(tagHelperContent);
@@ -62,13 +63,13 @@ public class DetailsTagHelperTests
 
         // Assert
         Assert.NotNull(actualOptions);
-        Assert.Equal(id, actualOptions!.Id);
+        Assert.Equal(id, actualOptions!.Id?.ToHtmlString());
         Assert.Equal(open, actualOptions.Open);
-        Assert.Equal(summaryHtml, actualOptions.SummaryHtml);
+        Assert.Equal(summaryHtml, actualOptions.SummaryHtml?.ToHtmlString());
         Assert.Null(actualOptions.SummaryText);
-        Assert.Equal(content, actualOptions.Html);
+        Assert.Equal(content, actualOptions.Html?.ToHtmlString());
         Assert.Null(actualOptions.Text);
-        Assert.Equal(classes, actualOptions.Classes);
+        Assert.Equal(classes, actualOptions.Classes?.ToHtmlString());
         Assert.NotNull(actualOptions.Attributes);
         Assert.Collection(actualOptions.Attributes, kvp =>
         {

@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
+using GovUk.Frontend.AspNetCore.ComponentGeneration;
 using GovUk.Frontend.AspNetCore.TagHelpers;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Xunit;
 
@@ -42,7 +44,7 @@ public class DetailsSummaryTagHelperTests
         await tagHelper.ProcessAsync(context, output);
 
         // Assert
-        Assert.Equal(summaryContent, detailsContext.Summary?.Html);
+        Assert.Equal(summaryContent, detailsContext.Summary?.Html.ToHtmlString());
     }
 
     [Fact]
@@ -50,7 +52,7 @@ public class DetailsSummaryTagHelperTests
     {
         // Arrange
         var detailsContext = new DetailsContext();
-        detailsContext.SetSummary(ImmutableDictionary<string, string?>.Empty, "Existing summary");
+        detailsContext.SetSummary(new EncodedAttributesDictionary(), new HtmlString("Existing summary"));
 
         var context = new TagHelperContext(
             tagName: "govuk-details-summary",
@@ -86,7 +88,7 @@ public class DetailsSummaryTagHelperTests
     {
         // Arrange
         var detailsContext = new DetailsContext();
-        detailsContext.SetText(ImmutableDictionary<string, string?>.Empty, "Existing text");
+        detailsContext.SetText(new EncodedAttributesDictionary(), new HtmlString("Existing text"));
 
         var context = new TagHelperContext(
             tagName: "govuk-details-summary",

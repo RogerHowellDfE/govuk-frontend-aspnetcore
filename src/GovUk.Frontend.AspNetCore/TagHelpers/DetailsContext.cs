@@ -1,34 +1,36 @@
 using System;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using GovUk.Frontend.AspNetCore.ComponentGeneration;
+using Microsoft.AspNetCore.Html;
 
 namespace GovUk.Frontend.AspNetCore.TagHelpers;
 
 internal class DetailsContext
 {
-    internal record SummaryInfo(ImmutableDictionary<string, string?> Attributes, string Html);
+    internal record SummaryInfo(EncodedAttributesDictionary Attributes, IHtmlContent Html);
 
-    internal record TextInfo(ImmutableDictionary<string, string?> Attributes, string Html);
+    internal record TextInfo(EncodedAttributesDictionary Attributes, IHtmlContent Html);
 
     // internal for testing
     internal SummaryInfo? Summary;
     internal TextInfo? Text;
 
-    public (ImmutableDictionary<string, string?> Attributes, string Html) GetSummaryOptions()
+    public (EncodedAttributesDictionary Attributes, IHtmlContent Html) GetSummaryOptions()
     {
         ThrowIfNotComplete();
 
         return (Summary.Attributes, Summary.Html);
     }
 
-    public (ImmutableDictionary<string, string?> Attributes, string Html) GetTextOptions()
+    public (EncodedAttributesDictionary Attributes, IHtmlContent Html) GetTextOptions()
     {
         ThrowIfNotComplete();
 
         return (Text.Attributes, Text.Html);
     }
 
-    public void SetSummary(ImmutableDictionary<string, string?> attributes, string html)
+    public void SetSummary(EncodedAttributesDictionary attributes, IHtmlContent html)
     {
         ArgumentNullException.ThrowIfNull(attributes);
         ArgumentNullException.ThrowIfNull(html);
@@ -46,7 +48,7 @@ internal class DetailsContext
         Summary = new SummaryInfo(attributes, html);
     }
 
-    public void SetText(ImmutableDictionary<string, string?> attributes, string html)
+    public void SetText(EncodedAttributesDictionary attributes, IHtmlContent html)
     {
         ArgumentNullException.ThrowIfNull(attributes);
         ArgumentNullException.ThrowIfNull(html);

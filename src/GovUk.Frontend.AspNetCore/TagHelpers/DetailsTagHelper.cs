@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using GovUk.Frontend.AspNetCore.ComponentGeneration;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace GovUk.Frontend.AspNetCore.TagHelpers;
@@ -54,12 +55,12 @@ public class DetailsTagHelper : TagHelper
         var (summaryAttributes, summaryHtml) = detailsContext.GetSummaryOptions();
         var (textAttributes, textHtml) = detailsContext.GetTextOptions();
 
-        var attributes = output.Attributes.ToEncodedAttributeDictionary()
-            .Remove("class", out var classes);
+        var attributes = new EncodedAttributesDictionary(output.Attributes);
+        attributes.Remove("class", out var classes);
 
         var component = _componentGenerator.GenerateDetails(new DetailsOptions()
         {
-            Id = Id,
+            Id = Id is not null ? new HtmlString(Id) : null,
             Open = Open,
             SummaryHtml = summaryHtml,
             SummaryText = null,
@@ -71,6 +72,6 @@ public class DetailsTagHelper : TagHelper
             TextAttributes = textAttributes
         });
 
-        output.WriteComponent(component);
+        component.WriteTo(output);
     }
 }

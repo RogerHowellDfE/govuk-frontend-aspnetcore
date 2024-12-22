@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
+using GovUk.Frontend.AspNetCore.ComponentGeneration;
 using GovUk.Frontend.AspNetCore.TagHelpers;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Xunit;
 
@@ -15,7 +17,7 @@ public class DetailsTextTagHelperTests
     {
         // Arrange
         var detailsContext = new DetailsContext();
-        detailsContext.SetSummary(ImmutableDictionary<string, string?>.Empty, "The summary");
+        detailsContext.SetSummary(new EncodedAttributesDictionary(), new HtmlString("The summary"));
         var textContent = "The text";
 
         var context = new TagHelperContext(
@@ -43,7 +45,7 @@ public class DetailsTextTagHelperTests
         await tagHelper.ProcessAsync(context, output);
 
         // Assert
-        Assert.Equal(textContent, detailsContext.Text?.Html);
+        Assert.Equal(textContent, detailsContext.Text?.Html.ToHtmlString());
     }
 
     [Fact]
@@ -51,8 +53,8 @@ public class DetailsTextTagHelperTests
     {
         // Arrange
         var detailsContext = new DetailsContext();
-        detailsContext.SetSummary(ImmutableDictionary<string, string?>.Empty, "The summary");
-        detailsContext.SetText(ImmutableDictionary<string, string?>.Empty, "Existing text");
+        detailsContext.SetSummary(new EncodedAttributesDictionary(), new HtmlString("The summary"));
+        detailsContext.SetText(new EncodedAttributesDictionary(), new HtmlString("Existing text"));
 
         var context = new TagHelperContext(
             tagName: "govuk-details-text",

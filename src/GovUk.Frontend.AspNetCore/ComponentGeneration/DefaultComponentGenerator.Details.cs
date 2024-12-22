@@ -1,7 +1,7 @@
 using System;
-using HtmlTags;
 
 namespace GovUk.Frontend.AspNetCore.ComponentGeneration;
+
 public partial class DefaultComponentGenerator
 {
     internal const string DetailsElement = "details";
@@ -9,26 +9,26 @@ public partial class DefaultComponentGenerator
     internal const string DetailsTextElement = "div";
 
     /// <inheritdoc/>
-    public virtual HtmlTag GenerateDetails(DetailsOptions options)
+    public virtual HtmlTagBuilder GenerateDetails(DetailsOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
         options.Validate();
 
-        return new HtmlTag(DetailsElement)
-            .AddEncodedAttributeIfNotNull("id", options.Id)
-            .AddClass("govuk-details")
-            .AddClasses(ExplodeClasses(options.Classes))
-            .AddEncodedAttributeIf(options.Open == true, "open", null)
-            .MergeEncodedAttributes(options.Attributes)
-            .Append(new HtmlTag(DetailsSummaryElement)
-                .AddClass("govuk-details__summary")
-                .MergeEncodedAttributes(options.SummaryAttributes)
-                .Append(new HtmlTag("span")
-                    .AddClass("govuk-details__summary-text")
-                    .AppendHtml(GetEncodedTextOrHtml(options.SummaryText, options.SummaryHtml))))
-            .Append(new HtmlTag(DetailsTextElement)
-                .AddClass("govuk-details__text")
-                .MergeEncodedAttributes(options.TextAttributes)
-                .AppendHtml(GetEncodedTextOrHtml(options.Text, options.Html)));
+        return new HtmlTagBuilder(DetailsElement)
+            .WhenNotNull(options.Id, (id, b) => b.WithAttribute("id", id))
+            .WithCssClass("govuk-details")
+            .WithCssClasses(ExplodeClasses(options.Classes?.ToHtmlString()))
+            .When(options.Open == true, b => b.WithBooleanAttribute("open"))
+            .WithAttributes(options.Attributes)
+            .WithAppendedHtml(new HtmlTagBuilder(DetailsSummaryElement)
+                .WithCssClass("govuk-details__summary")
+                .WithAttributes(options.SummaryAttributes)
+                .WithAppendedHtml(new HtmlTagBuilder("span")
+                    .WithCssClass("govuk-details__summary-text")
+                    .WithAppendedHtml(GetEncodedTextOrHtml(options.SummaryText, options.SummaryHtml)!)))
+            .WithAppendedHtml(new HtmlTagBuilder(DetailsTextElement)
+                .WithCssClass("govuk-details__text")
+                .WithAttributes(options.TextAttributes)
+                .WithAppendedHtml(GetEncodedTextOrHtml(options.Text, options.Html)!));
     }
 }

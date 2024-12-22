@@ -29,7 +29,7 @@ public interface IComponentGenerator
     /// Generates a details component.
     /// </summary>
     /// <returns>An <see cref="HtmlTag"/> with the component's HTML.</returns>
-    HtmlTag GenerateDetails(DetailsOptions options);
+    HtmlTagBuilder GenerateDetails(DetailsOptions options);
 
     /// <summary>
     /// Generates an error message component.
