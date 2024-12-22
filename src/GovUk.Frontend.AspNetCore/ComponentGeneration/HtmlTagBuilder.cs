@@ -73,12 +73,9 @@ public class HtmlTagBuilder : IHtmlContent
 
     /// <inheritdoc cref="EncodedAttributesDictionary.Add(EncodedAttributesDictionary)"/>
     /// <returns>This <see cref="HtmlTagBuilder"/> to allow calls to be chained.</returns>
-    public HtmlTagBuilder WithAttributes(EncodedAttributesDictionary? other)
+    public HtmlTagBuilder WithAttributes(EncodedAttributesDictionary other)
     {
-        if (other is null)
-        {
-            return this;
-        }
+        ArgumentNullException.ThrowIfNull(other);
 
         _attributes.Add(other);
 
@@ -117,6 +114,23 @@ public class HtmlTagBuilder : IHtmlContent
         ThrowOnAppendIfVoidElement();
 
         _innerContent.AppendHtml(content);
+
+        return this;
+    }
+
+    /// <summary>
+    /// Appends content to this tag's inner content.
+    /// </summary>
+    /// <param name="content">The content to append.</param>
+    /// <returns>This <see cref="HtmlTagBuilder"/> to allow calls to be chained.</returns>
+    public HtmlTagBuilder WithAppendedHtml(IEnumerable<IHtmlContent> content)
+    {
+        ThrowOnAppendIfVoidElement();
+
+        foreach (var c in content)
+        {
+            _innerContent.AppendHtml(c);
+        }
 
         return this;
     }

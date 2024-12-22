@@ -63,12 +63,7 @@ public class ComponentFixtureData : DataAttribute
 
         foreach (var fixture in fixtures)
         {
-            if (fixture!["hidden"]?.GetValue<bool>() != true)
-            {
-                continue;
-            }
-
-            var name = fixture["name"]!.ToString();
+            var name = fixture!["name"]!.ToString();
 
             if (_exclude.Contains(name) || _only != null && name != _only)
             {
@@ -131,7 +126,7 @@ public class ComponentFixtureData : DataAttribute
         public override IHtmlContent? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var str = JsonSerializer.Deserialize<string>(ref reader, options);
-            return new HtmlString(str);
+            return str is not null ? new HtmlString(str) : null;
         }
 
         public override void Write(Utf8JsonWriter writer, IHtmlContent value, JsonSerializerOptions options)

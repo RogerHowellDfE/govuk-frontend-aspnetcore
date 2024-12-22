@@ -8,6 +8,12 @@ namespace GovUk.Frontend.AspNetCore.ComponentGeneration;
 public interface IComponentGenerator
 {
     /// <summary>
+    /// Generates an accordion component.
+    /// </summary>
+    /// <returns>An <see cref="HtmlTag"/> with the component's HTML.</returns>
+    HtmlTagBuilder GenerateAccordion(AccordionOptions options);
+
+    /// <summary>
     /// Generates a back link component.
     /// </summary>
     /// <returns>An <see cref="HtmlTag"/> with the component's HTML.</returns>

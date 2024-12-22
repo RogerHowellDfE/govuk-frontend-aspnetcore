@@ -16,6 +16,13 @@ public class ComponentTests
     }
 
     [Theory]
+    [ComponentFixtureData("accordion", typeof(AccordionOptions), exclude: "with falsey values")]
+    public void Accordion(ComponentTestCaseData<AccordionOptions> data) =>
+        CheckComponentHtmlMatchesExpectedHtml(
+            data,
+            (generator, options) => generator.GenerateAccordion(options).ToHtmlString());
+
+    [Theory]
     [ComponentFixtureData("back-link", typeof(BackLinkOptions))]
     public void BackLink(ComponentTestCaseData<BackLinkOptions> data) =>
         CheckComponentHtmlMatchesExpectedHtml(

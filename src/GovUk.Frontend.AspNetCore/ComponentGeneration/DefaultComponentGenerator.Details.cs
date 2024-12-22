@@ -19,16 +19,16 @@ public partial class DefaultComponentGenerator
             .WithCssClass("govuk-details")
             .WithCssClasses(ExplodeClasses(options.Classes?.ToHtmlString()))
             .When(options.Open == true, b => b.WithBooleanAttribute("open"))
-            .WithAttributes(options.Attributes)
+            .WithAttributes(options.Attributes ?? [])
             .WithAppendedHtml(new HtmlTagBuilder(DetailsSummaryElement)
                 .WithCssClass("govuk-details__summary")
-                .WithAttributes(options.SummaryAttributes)
+                .WithAttributes(options.SummaryAttributes ?? [])
                 .WithAppendedHtml(new HtmlTagBuilder("span")
                     .WithCssClass("govuk-details__summary-text")
                     .WithAppendedHtml(GetEncodedTextOrHtml(options.SummaryText, options.SummaryHtml)!)))
             .WithAppendedHtml(new HtmlTagBuilder(DetailsTextElement)
                 .WithCssClass("govuk-details__text")
-                .WithAttributes(options.TextAttributes)
+                .WithAttributes(options.TextAttributes ?? [])
                 .WithAppendedHtml(GetEncodedTextOrHtml(options.Text, options.Html)!));
     }
 }
