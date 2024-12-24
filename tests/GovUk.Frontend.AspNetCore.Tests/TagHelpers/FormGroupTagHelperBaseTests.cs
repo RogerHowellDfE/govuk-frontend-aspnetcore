@@ -93,7 +93,7 @@ public class FormGroupTagHelperBaseTests
             containerErrorContext.Errors,
             error =>
             {
-                Assert.Equal("Error message", error.Html);
+                Assert.Equal("Error message", error.Html?.ToHtmlString());
             });
     }
 

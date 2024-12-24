@@ -42,7 +42,7 @@ public class LabelTagHelperTests
         await tagHelper.ProcessAsync(context, output);
 
         // Assert
-        Assert.Equal(HtmlEncoder.Default.Encode(label), formGroupContext.Label?.Html);
+        Assert.Equal(label, formGroupContext.Label?.Html?.ToHtmlString());
     }
 
     private class TestFormGroupContext : FormGroupContext2

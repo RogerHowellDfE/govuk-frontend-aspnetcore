@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using Microsoft.AspNetCore.Html;
 
 namespace GovUk.Frontend.AspNetCore.ComponentGeneration;
 
@@ -6,28 +6,30 @@ namespace GovUk.Frontend.AspNetCore.ComponentGeneration;
 
 public class ButtonOptions
 {
-    public string? Element { get; set; }
-    public string? Html { get; set; }
+    public IHtmlContent? Element { get; set; }
+    public IHtmlContent? Html { get; set; }
     public string? Text { get; set; }
-    public string? Name { get; set; }
-    public string? Type { get; set; }
-    public string? Value { get; set; }
+    public IHtmlContent? Name { get; set; }
+    public IHtmlContent? Type { get; set; }
+    public IHtmlContent? Value { get; set; }
     public bool? Disabled { get; set; }
-    public string? Href { get; set; }
-    public string? Classes { get; set; }
-    public IReadOnlyDictionary<string, string?>? Attributes { get; set; }
+    public IHtmlContent? Href { get; set; }
+    public IHtmlContent? Classes { get; set; }
+    public EncodedAttributesDictionary? Attributes { get; set; }
     public bool? PreventDoubleClick { get; set; }
     public bool? IsStartButton { get; set; }
-    public string? Id { get; set; }
+    public IHtmlContent? Id { get; set; }
 
     internal void Validate()
     {
-        if (Element is not null && Element != "a" && Element != "button" && Element != "input")
+        var elementStr = Element?.ToHtmlString();
+
+        if (elementStr is not null && elementStr != "a" && elementStr != "button" && elementStr != "input")
         {
             throw new InvalidOptionsException(GetType(), $"{nameof(Element)} must be 'a', 'button', or 'input'.");
         }
 
-        if (Element == "input" && IsStartButton == true)
+        if (elementStr == "input" && IsStartButton == true)
         {
             throw new InvalidOptionsException(GetType(), $"{nameof(IsStartButton)} cannot be specified for 'input' elements.");
         }
@@ -37,12 +39,12 @@ public class ButtonOptions
             throw new InvalidOptionsException(GetType(), $"{nameof(PreventDoubleClick)} can only be specified for 'button' or 'input' elements.");
         }
 
-        if (Element == "a" && Disabled is not null)
+        if (elementStr == "a" && Disabled is not null)
         {
             throw new InvalidOptionsException(GetType(), $"{nameof(Disabled)} cannot be specified for 'a' elements.");
         }
 
-        if (Html.NormalizeEmptyString() is not null && Element == "input")
+        if (Html.NormalizeEmptyString() is not null && elementStr == "input")
         {
             throw new InvalidOptionsException(GetType(), $"{nameof(Html)} cannot be specified for 'input' elements.");
         }
@@ -54,5 +56,5 @@ public class ButtonOptions
     }
 
     internal string GetElement() =>
-        Element.NormalizeEmptyString() ?? (Href.NormalizeEmptyString() is not null ? "a" : "button");
+        Element?.ToHtmlString().NormalizeEmptyString() ?? (Href.NormalizeEmptyString() is not null ? "a" : "button");
 }

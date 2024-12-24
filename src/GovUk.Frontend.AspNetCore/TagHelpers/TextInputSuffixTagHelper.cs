@@ -27,14 +27,14 @@ public class TextInputSuffixTagHelper : TagHelper
     {
         var inputContext = context.GetContextItem<TextInputContext>();
 
-        var childContent = await output.GetChildContentAsync();
+        var childContent = (await output.GetChildContentAsync()).Snapshot();
 
         if (output.Content.IsModified)
         {
             childContent = output.Content;
         }
 
-        inputContext.SetSuffix(output.Attributes.ToEncodedAttributeDictionary(), childContent.ToHtmlString(), output.TagName);
+        inputContext.SetSuffix(new EncodedAttributesDictionary(output.Attributes), childContent, output.TagName);
 
         output.SuppressOutput();
     }

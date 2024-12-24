@@ -1,4 +1,4 @@
-using System.Collections.Immutable;
+using Microsoft.AspNetCore.Html;
 
 namespace GovUk.Frontend.AspNetCore.ComponentGeneration;
 
@@ -6,8 +6,8 @@ namespace GovUk.Frontend.AspNetCore.ComponentGeneration;
 
 public class FormGroupOptions
 {
-    public string? Classes { get; set; }
-    public ImmutableDictionary<string, string?>? Attributes { get; set; }
+    public IHtmlContent? Classes { get; set; }
+    public EncodedAttributesDictionary? Attributes { get; set; }
 
     internal virtual void Validate()
     {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Razor.TagHelpers;
@@ -73,11 +74,12 @@ public class HtmlTagBuilder : IHtmlContent
 
     /// <inheritdoc cref="EncodedAttributesDictionary.Add(EncodedAttributesDictionary)"/>
     /// <returns>This <see cref="HtmlTagBuilder"/> to allow calls to be chained.</returns>
-    public HtmlTagBuilder WithAttributes(EncodedAttributesDictionary other)
+    public HtmlTagBuilder WithAttributes(EncodedAttributesDictionary? other)
     {
-        ArgumentNullException.ThrowIfNull(other);
-
-        _attributes.Add(other);
+        if (other is not null)
+        {
+            _attributes.Add(other);
+        }
 
         return this;
     }
@@ -111,9 +113,27 @@ public class HtmlTagBuilder : IHtmlContent
     /// <returns>This <see cref="HtmlTagBuilder"/> to allow calls to be chained.</returns>
     public HtmlTagBuilder WithAppendedHtml(IHtmlContent content)
     {
+        ArgumentNullException.ThrowIfNull(content);
+
         ThrowOnAppendIfVoidElement();
 
         _innerContent.AppendHtml(content);
+
+        return this;
+    }
+
+    /// <summary>
+    /// Appends content to this tag's inner content.
+    /// </summary>
+    /// <param name="getContent">The delegate that gets the content to append.</param>
+    /// <returns>This <see cref="HtmlTagBuilder"/> to allow calls to be chained.</returns>
+    public HtmlTagBuilder WithAppendedHtml(Func<IHtmlContent> getContent)
+    {
+        ArgumentNullException.ThrowIfNull(getContent);
+
+        ThrowOnAppendIfVoidElement();
+
+        _innerContent.AppendHtml(getContent());
 
         return this;
     }
@@ -125,6 +145,8 @@ public class HtmlTagBuilder : IHtmlContent
     /// <returns>This <see cref="HtmlTagBuilder"/> to allow calls to be chained.</returns>
     public HtmlTagBuilder WithAppendedHtml(IEnumerable<IHtmlContent> content)
     {
+        ArgumentNullException.ThrowIfNull(content);
+
         ThrowOnAppendIfVoidElement();
 
         foreach (var c in content)
@@ -181,11 +203,20 @@ public class HtmlTagBuilder : IHtmlContent
 
     /// <inheritdoc cref="EncodedAttributesDictionary.AddCssClasses(IEnumerable{string})"/>
     /// <returns>This <see cref="HtmlTagBuilder"/> to allow calls to be chained.</returns>
+    public HtmlTagBuilder WithCssClasses(params string[] classNames) =>
+        WithCssClasses(classNames.AsEnumerable());
+
+    /// <inheritdoc cref="EncodedAttributesDictionary.AddCssClasses(IEnumerable{string})"/>
+    /// <returns>This <see cref="HtmlTagBuilder"/> to allow calls to be chained.</returns>
     public HtmlTagBuilder WithCssClasses(IEnumerable<string> classNames)
     {
         ArgumentNullException.ThrowIfNull(classNames);
 
-        _attributes.AddCssClasses(classNames);
+        var classNamesArray = classNames.ToArray();
+        if (classNamesArray.Length > 0)
+        {
+            _attributes.AddCssClasses(classNames);
+        }
 
         return this;
     }
@@ -245,6 +276,18 @@ public class HtmlTagBuilder : IHtmlContent
 
     internal HtmlTagBuilder WhenNotNull<T>(T? value, Action<T, HtmlTagBuilder> action) =>
         WhenNotNull(() => value, action);
+
+    internal HtmlTagBuilder WithAttributeWhenNotNull(Func<string?> getValue, string name, bool encodedValue) =>
+        WhenNotNull(getValue(), (value, b) => b.WithAttribute(name, value, encodedValue));
+
+    internal HtmlTagBuilder WithAttributeWhenNotNull(string? value, string name, bool encodedValue) =>
+        WhenNotNull(value, (_, b) => b.WithAttribute(name, value!, encodedValue));
+
+    internal HtmlTagBuilder WithAttributeWhenNotNull(Func<IHtmlContent?> getValue, string name) =>
+        WhenNotNull(getValue(), (value, b) => b.WithAttribute(name, value));
+
+    internal HtmlTagBuilder WithAttributeWhenNotNull(IHtmlContent? value, string name) =>
+        WhenNotNull(value, (_, b) => b.WithAttribute(name, value!));
 
     void IHtmlContent.WriteTo(TextWriter writer, HtmlEncoder encoder)
     {

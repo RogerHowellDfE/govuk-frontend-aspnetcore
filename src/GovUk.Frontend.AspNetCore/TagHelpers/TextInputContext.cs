@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using GovUk.Frontend.AspNetCore.ComponentGeneration;
+using Microsoft.AspNetCore.Html;
 
 namespace GovUk.Frontend.AspNetCore.TagHelpers;
 
 internal class TextInputContext : FormGroupContext2
 {
-    internal record PrefixSuffixInfo(ImmutableDictionary<string, string?> Attributes, string Html, string TagName);
+    internal record PrefixSuffixInfo(EncodedAttributesDictionary Attributes, IHtmlContent Html, string TagName);
 
     // internal for testing
     internal PrefixSuffixInfo? Prefix;
@@ -30,7 +31,7 @@ internal class TextInputContext : FormGroupContext2
         {
             Text = null,
             Html = Prefix.Html,
-            Attributes = Prefix.Attributes.Remove("class", out var classes),
+            Attributes = new EncodedAttributesDictionaryBuilder(Prefix.Attributes).Without("class", out var classes),
             Classes = classes
         } :
         null;
@@ -40,15 +41,15 @@ internal class TextInputContext : FormGroupContext2
         {
             Text = null,
             Html = Suffix.Html,
-            Attributes = Suffix.Attributes.Remove("class", out var classes),
+            Attributes = new EncodedAttributesDictionaryBuilder(Suffix.Attributes).Without("class", out var classes),
             Classes = classes
         } :
         null;
 
     public override void SetErrorMessage(
-        string? visuallyHiddenText,
-        ImmutableDictionary<string, string?> attributes,
-        string? html,
+        IHtmlContent? visuallyHiddenText,
+        EncodedAttributesDictionary attributes,
+        IHtmlContent? html,
         string tagName)
     {
         if (Prefix is not null)
@@ -69,8 +70,8 @@ internal class TextInputContext : FormGroupContext2
     }
 
     public override void SetHint(
-        ImmutableDictionary<string, string?> attributes,
-        string? html,
+        EncodedAttributesDictionary attributes,
+        IHtmlContent? html,
         string tagName)
     {
         if (Prefix is not null)
@@ -92,8 +93,8 @@ internal class TextInputContext : FormGroupContext2
 
     public override void SetLabel(
         bool isPageHeading,
-        ImmutableDictionary<string, string?> attributes,
-        string? html,
+        EncodedAttributesDictionary attributes,
+        IHtmlContent? html,
         string tagName)
     {
         if (Prefix is not null)
@@ -114,8 +115,8 @@ internal class TextInputContext : FormGroupContext2
     }
 
     public void SetPrefix(
-        ImmutableDictionary<string, string?> attributes,
-        string html,
+        EncodedAttributesDictionary attributes,
+        IHtmlContent html,
         string tagName)
     {
         ArgumentNullException.ThrowIfNull(html);
@@ -138,8 +139,8 @@ internal class TextInputContext : FormGroupContext2
     }
 
     public void SetSuffix(
-        ImmutableDictionary<string, string?> attributes,
-        string html,
+        EncodedAttributesDictionary attributes,
+        IHtmlContent html,
         string tagName)
     {
         ArgumentNullException.ThrowIfNull(html);

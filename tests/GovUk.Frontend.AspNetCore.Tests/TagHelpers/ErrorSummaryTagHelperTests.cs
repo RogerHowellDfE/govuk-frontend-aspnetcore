@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Threading.Tasks;
 using GovUk.Frontend.AspNetCore.ComponentGeneration;
 using GovUk.Frontend.AspNetCore.TagHelpers;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Moq;
@@ -23,13 +24,13 @@ public class ErrorSummaryTagHelperTests
         {
             new ErrorSummaryOptionsErrorItem()
             {
-                Html = "First message",
-                Href = "#Field1"
+                Html = new HtmlString("First message"),
+                Href = new HtmlString("#Field1")
             },
             new ErrorSummaryOptionsErrorItem()
             {
-                Html = "Second message",
-                Href = "#Field2"
+                Html = new HtmlString("Second message"),
+                Href = new HtmlString("#Field2")
             }
         };
 
@@ -46,8 +47,8 @@ public class ErrorSummaryTagHelperTests
             {
                 var errorSummaryContext = (ErrorSummaryContext)context.Items[typeof(ErrorSummaryContext)];
 
-                errorSummaryContext.SetTitle(ImmutableDictionary<string, string?>.Empty, titleHtml);
-                errorSummaryContext.SetDescription(ImmutableDictionary<string, string?>.Empty, descriptionHtml);
+                errorSummaryContext.SetTitle(new EncodedAttributesDictionary(), new HtmlString(titleHtml));
+                errorSummaryContext.SetDescription(new EncodedAttributesDictionary(), new HtmlString(descriptionHtml));
 
                 foreach (var error in errorItems)
                 {
@@ -74,9 +75,9 @@ public class ErrorSummaryTagHelperTests
         // Assert
         Assert.NotNull(actualOptions);
         Assert.Null(actualOptions!.TitleText);
-        Assert.Equal(titleHtml, actualOptions.TitleHtml);
+        Assert.Equal(titleHtml, actualOptions.TitleHtml?.ToHtmlString());
         Assert.Null(actualOptions.DescriptionText);
-        Assert.Equal(descriptionHtml, actualOptions.DescriptionHtml);
+        Assert.Equal(descriptionHtml, actualOptions.DescriptionHtml?.ToHtmlString());
         Assert.Equal(actualOptions.ErrorList, errorItems);
         Assert.Null(actualOptions.Classes);
         Assert.NotNull(actualOptions.Attributes);

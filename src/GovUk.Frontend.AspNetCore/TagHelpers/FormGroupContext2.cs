@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Text.Encodings.Web;
 using GovUk.Frontend.AspNetCore.ComponentGeneration;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
@@ -10,11 +11,11 @@ namespace GovUk.Frontend.AspNetCore.TagHelpers;
 
 internal abstract class FormGroupContext2
 {
-    internal record LabelInfo(bool IsPageHeading, ImmutableDictionary<string, string?> Attributes, string? Html, string TagName);
+    internal record LabelInfo(bool IsPageHeading, EncodedAttributesDictionary Attributes, IHtmlContent? Html, string TagName);
 
-    internal record HintInfo(ImmutableDictionary<string, string?> Attributes, string? Html, string TagName);
+    internal record HintInfo(EncodedAttributesDictionary Attributes, IHtmlContent? Html, string TagName);
 
-    internal record ErrorMessageInfo(string? VisuallyHiddenText, ImmutableDictionary<string, string?> Attributes, string? Html, string TagName);
+    internal record ErrorMessageInfo(IHtmlContent? VisuallyHiddenText, EncodedAttributesDictionary Attributes, IHtmlContent? Html, string TagName);
 
     // internal for testing
     internal LabelInfo? Label;
@@ -33,10 +34,10 @@ internal abstract class FormGroupContext2
         ModelExpression? @for,
         ViewContext viewContext,
         IModelHelper modelHelper,
-        string inputId,
+        IHtmlContent inputId,
         string forAttributeName)
     {
-        string? html = Label?.Html;
+        IHtmlContent? html = Label?.Html;
 
         if (html is null)
         {
@@ -49,11 +50,11 @@ internal abstract class FormGroupContext2
             var displayName = modelHelper.GetDisplayName(@for!.ModelExplorer, @for.Name) ??
                 throw new InvalidOperationException("Cannot deduce content for the label.");
 
-            html = HtmlEncoder.Default.Encode(displayName);
+            html = new HtmlString(displayName);
         }
 
-        var attributes = (Label?.Attributes ?? ImmutableDictionary<string, string?>.Empty)
-            .Remove("class", out var classes);
+        var attributes = Label?.Attributes.Clone() ?? new EncodedAttributesDictionary();
+        attributes.Remove("class", out var classes);
 
         return new LabelOptions()
         {
@@ -68,7 +69,7 @@ internal abstract class FormGroupContext2
 
     public HintOptions? GetHintOptions(ModelExpression? @for, IModelHelper modelHelper)
     {
-        string? html = Hint?.Html;
+        IHtmlContent? html = Hint?.Html;
 
         if (html is null && @for is not null)
         {
@@ -76,7 +77,7 @@ internal abstract class FormGroupContext2
 
             if (description is not null)
             {
-                html = HtmlEncoder.Default.Encode(description);
+                html = new HtmlString(description);
             }
         }
 
@@ -90,8 +91,8 @@ internal abstract class FormGroupContext2
             return null;
         }
 
-        var attributes = (Hint?.Attributes ?? ImmutableDictionary<string, string?>.Empty)
-            .Remove("class", out var classes);
+        var attributes = Hint?.Attributes.Clone() ?? new EncodedAttributesDictionary();
+        attributes.Remove("class", out var classes);
 
         return new HintOptions()
         {
@@ -105,7 +106,7 @@ internal abstract class FormGroupContext2
 
     public ErrorMessageOptions? GetErrorMessageOptions(ModelExpression? @for, ViewContext viewContext, IModelHelper modelHelper, bool? ignoreModelStateErrors)
     {
-        string? html = ErrorMessage?.Html;
+        IHtmlContent? html = ErrorMessage?.Html;
 
         if (html is null && @for is not null && ignoreModelStateErrors != true)
         {
@@ -113,7 +114,7 @@ internal abstract class FormGroupContext2
 
             if (validationMessage is not null)
             {
-                html = HtmlEncoder.Default.Encode(validationMessage);
+                html = new HtmlString(validationMessage);
             }
         }
 
@@ -122,8 +123,8 @@ internal abstract class FormGroupContext2
             return null;
         }
 
-        var attributes = (ErrorMessage?.Attributes ?? ImmutableDictionary<string, string?>.Empty)
-            .Remove("class", out var classes);
+        var attributes = ErrorMessage?.Attributes.Clone() ?? new EncodedAttributesDictionary();
+        attributes.Remove("class", out var classes);
 
         return new ErrorMessageOptions()
         {
@@ -137,9 +138,9 @@ internal abstract class FormGroupContext2
     }
 
     public virtual void SetErrorMessage(
-        string? visuallyHiddenText,
-        ImmutableDictionary<string, string?> attributes,
-        string? html,
+        IHtmlContent? visuallyHiddenText,
+        EncodedAttributesDictionary attributes,
+        IHtmlContent? html,
         string tagName)
     {
         if (ErrorMessage is not null)
@@ -151,8 +152,8 @@ internal abstract class FormGroupContext2
     }
 
     public virtual void SetHint(
-        ImmutableDictionary<string, string?> attributes,
-        string? html,
+        EncodedAttributesDictionary attributes,
+        IHtmlContent? html,
         string tagName)
     {
         if (Hint is not null)
@@ -170,8 +171,8 @@ internal abstract class FormGroupContext2
 
     public virtual void SetLabel(
         bool isPageHeading,
-        ImmutableDictionary<string, string?> attributes,
-        string? html,
+        EncodedAttributesDictionary attributes,
+        IHtmlContent? html,
         string tagName)
     {
         if (Label is not null)

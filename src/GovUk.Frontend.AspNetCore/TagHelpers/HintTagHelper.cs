@@ -23,7 +23,7 @@ public class HintTagHelper : TagHelper
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
         var childContent = output.TagMode == TagMode.StartTagAndEndTag ?
-            await output.GetChildContentAsync() :
+            (await output.GetChildContentAsync()).Snapshot() :
             null;
 
         if (output.Content.IsModified)
@@ -33,7 +33,7 @@ public class HintTagHelper : TagHelper
 
         var formGroupContext = context.GetContextItem<FormGroupContext2>();
 
-        formGroupContext.SetHint(output.Attributes.ToEncodedAttributeDictionary(), childContent?.ToHtmlString(), output.TagName);
+        formGroupContext.SetHint(new EncodedAttributesDictionary(output.Attributes), childContent, output.TagName);
 
         output.SuppressOutput();
     }

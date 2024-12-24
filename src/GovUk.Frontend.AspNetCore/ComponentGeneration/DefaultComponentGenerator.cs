@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using HtmlTags;
 using Microsoft.AspNetCore.Html;
 
 namespace GovUk.Frontend.AspNetCore.ComponentGeneration;
@@ -12,21 +11,22 @@ public partial class DefaultComponentGenerator : IComponentGenerator
 {
     internal const string FormGroupElement = "div";
 
-    private protected static void AppendToDescribedBy(ref string describedBy, string value)
+    private protected static void AppendToDescribedBy(ref IHtmlContent describedBy, IHtmlContent value)
     {
-        describedBy += " " + value;
-        describedBy = describedBy.Trim();
+        var str = describedBy.ToHtmlString();
+        str = (str + (" " + value)).Trim();
+        describedBy = new HtmlString(str);
     }
 
-    private protected virtual HtmlTag GenerateFormGroup(
+    private protected virtual HtmlTagBuilder GenerateFormGroup(
         FormGroupOptions? options,
         bool haveError)
     {
-        return new HtmlTag(FormGroupElement)
-            .AddClass("govuk-form-group")
-            .AddClassIf(haveError, "govuk-form-group--error")
-            .AddClasses(ExplodeClasses(options?.Classes))
-            .MergeEncodedAttributes(options?.Attributes);
+        return new HtmlTagBuilder(FormGroupElement)
+            .WithCssClass("govuk-form-group")
+            .When(haveError, b => b.WithCssClass("govuk-form-group--error"))
+            .WithCssClasses(ExplodeClasses(options?.Classes?.ToHtmlString()))
+            .WithAttributes(options?.Attributes);
     }
 
     private static string[] ExplodeClasses(string? classes) =>

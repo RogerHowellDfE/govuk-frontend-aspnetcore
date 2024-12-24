@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using GovUk.Frontend.AspNetCore.ComponentGeneration;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -224,37 +225,35 @@ public class TextInputTagHelper : TagHelper
 
         if (LabelClass is not null)
         {
-            labelOptions.Classes += " " + LabelClass;
+            labelOptions.Classes = new HtmlString(labelOptions.Classes?.ToHtmlString() + " " + LabelClass);
         }
 
-        var formGroupAttributes = output.Attributes.ToEncodedAttributeDictionary()
-            .Remove("class", out var formGroupClasses);
+        var formGroupAttributes = new EncodedAttributesDictionary(output.Attributes);
+        formGroupAttributes.Remove("class", out var formGroupClasses);
         var formGroupOptions = new FormGroupOptions()
         {
             Attributes = formGroupAttributes,
             Classes = formGroupClasses
         };
 
-        var attributes = InputAttributes!.ToImmutableDictionary()
-            .Remove("class", out var classes);
+        var attributes = EncodedAttributesDictionary.FromDictionaryWithEncodedValues(InputAttributes);
+        attributes.Remove("class", out var classes);
 
         if (errorMessageOptions is not null)
         {
-            classes ??= "";
-            classes += " govuk-input--error";
-
-            formGroupOptions.Classes += " govuk-form-group--error";
+            classes = new HtmlString((classes is not null ? classes.ToHtmlString() + " " : "") + "govuk-input--error");
+            formGroupOptions.Classes = new HtmlString((formGroupOptions.Classes is not null ? formGroupOptions.Classes + " " : "") + "govuk-form-group--error");
         }
 
         var component = _componentGenerator.GenerateTextInput(new TextInputOptions()
         {
             Id = id,
             Name = name,
-            Type = Type,
-            Inputmode = InputMode,
+            Type = Type.ToHtmlContent(),
+            Inputmode = InputMode.ToHtmlContent(),
             Value = value,
             Disabled = Disabled,
-            DescribedBy = DescribedBy,
+            DescribedBy = DescribedBy.ToHtmlContent(),
             Label = labelOptions,
             Hint = hintOptions,
             ErrorMessage = errorMessageOptions,
@@ -262,32 +261,32 @@ public class TextInputTagHelper : TagHelper
             Suffix = suffixOptions,
             FormGroup = formGroupOptions,
             Classes = classes,
-            Autocomplete = Autocomplete,
-            Pattern = Pattern,
+            Autocomplete = Autocomplete.ToHtmlContent(),
+            Pattern = Pattern.ToHtmlContent(),
             Spellcheck = Spellcheck,
             Attributes = attributes
         });
 
-        output.WriteComponent(component);
+        component.WriteTo(output);
 
         if (errorMessageOptions is not null && context.TryGetContextItem<ContainerErrorContext>(out var containerErrorContext))
         {
             Debug.Assert(errorMessageOptions.Html is not null);
-            containerErrorContext.AddError(errorMessageOptions.Html!, href: "#" + id);
+            containerErrorContext.AddError(errorMessageOptions.Html!, href: new HtmlString("#" + id));
         }
     }
 
-    private string ResolveId(string name)
+    private IHtmlContent ResolveId(IHtmlContent name)
     {
         if (Id is not null)
         {
-            return Id;
+            return new HtmlString(Id);
         }
 
-        return TagBuilder.CreateSanitizedId(name, Constants.IdAttributeDotReplacement);
+        return new HtmlString(TagBuilder.CreateSanitizedId(name.ToHtmlString(), Constants.IdAttributeDotReplacement));
     }
 
-    private string ResolveName()
+    private IHtmlContent ResolveName()
     {
         if (Name is null && For is null)
         {
@@ -296,16 +295,16 @@ public class TextInputTagHelper : TagHelper
                 AspForAttributeName);
         }
 
-        return Name ?? _modelHelper.GetFullHtmlFieldName(ViewContext!, For!.Name);
+        return new HtmlString(Name ?? _modelHelper.GetFullHtmlFieldName(ViewContext!, For!.Name));
     }
 
-    private string? ResolveValue()
+    private IHtmlContent? ResolveValue()
     {
         if (_valueSpecified)
         {
-            return _value;
+            return new HtmlString(_value);
         }
 
-        return For != null ? _modelHelper.GetModelValue(ViewContext!, For.ModelExplorer, For.Name) : null;
+        return For != null ? new HtmlString(_modelHelper.GetModelValue(ViewContext!, For.ModelExplorer, For.Name)) : null;
     }
 }

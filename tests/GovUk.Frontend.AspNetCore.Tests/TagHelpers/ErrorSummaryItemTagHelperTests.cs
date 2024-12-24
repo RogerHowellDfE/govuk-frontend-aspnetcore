@@ -55,7 +55,7 @@ public class ErrorSummaryItemTagHelperTests
             errorSummaryContext.Items,
             item =>
             {
-                Assert.Equal(errorHtml, item.Html);
+                Assert.Equal(errorHtml, item.Html?.ToHtmlString());
             });
     }
 
@@ -148,7 +148,7 @@ public class ErrorSummaryItemTagHelperTests
             errorSummaryContext.Items,
             item =>
             {
-                Assert.Equal(HtmlEncoder.Default.Encode(modelStateErrorMessage), item.Html);
+                Assert.Equal(modelStateErrorMessage, item.Html?.ToHtmlString());
             });
     }
 
@@ -204,7 +204,7 @@ public class ErrorSummaryItemTagHelperTests
             errorSummaryContext.Items,
             item =>
             {
-                Assert.Equal(errorHtml, item.Html);
+                Assert.Equal(errorHtml, item.Html?.ToHtmlString());
             });
     }
 
@@ -249,7 +249,7 @@ public class ErrorSummaryItemTagHelperTests
             errorSummaryContext.Items,
             item =>
             {
-                Assert.Equal("#TheField", item.Href);
+                Assert.Equal("#TheField", item.Href?.ToHtmlString());
             });
     }
 
@@ -302,7 +302,7 @@ public class ErrorSummaryItemTagHelperTests
             errorSummaryContext.Items,
             item =>
             {
-                Assert.Equal("#Field", item.Href);
+                Assert.Equal("#Field", item.Href?.ToHtmlString());
             });
     }
 
@@ -357,7 +357,7 @@ public class ErrorSummaryItemTagHelperTests
             errorSummaryContext.Items,
             item =>
             {
-                Assert.Equal("#Date.Month", item.Href);
+                Assert.Equal("#Date.Month", item.Href?.ToHtmlString());
             });
     }
 
@@ -413,7 +413,7 @@ public class ErrorSummaryItemTagHelperTests
             errorSummaryContext.Items,
             item =>
             {
-                Assert.Equal("#SomeHref", item.Href);
+                Assert.Equal("#SomeHref", item.Href?.ToHtmlString());
             });
     }
 

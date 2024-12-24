@@ -34,25 +34,25 @@ public class InsetTextTagHelper : TagHelper
     /// <inheritdoc/>
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
-        var childContent = await output.GetChildContentAsync();
+        var childContent = (await output.GetChildContentAsync()).Snapshot();
 
         if (output.Content.IsModified)
         {
             childContent = output.Content;
         }
 
-        var attributes = output.Attributes.ToEncodedAttributeDictionary()
-            .Remove("class", out var classes);
+        var attributes = new EncodedAttributesDictionary(output.Attributes);
+        attributes.Remove("class", out var classes);
 
         var component = _componentGenerator.GenerateInsetText(new InsetTextOptions()
         {
-            Id = Id,
+            Id = Id.ToHtmlContent(),
             Text = null,
-            Html = childContent.ToHtmlString(),
+            Html = childContent,
             Classes = classes,
             Attributes = attributes
         });
 
-        output.WriteComponent(component);
+        component.WriteTo(output);
     }
 }

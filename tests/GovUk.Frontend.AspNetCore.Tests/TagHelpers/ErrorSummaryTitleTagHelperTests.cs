@@ -41,6 +41,6 @@ public class ErrorSummaryTitleTagHelperTests
         await tagHelper.ProcessAsync(context, output);
 
         // Assert
-        Assert.Equal(titleHtml, errorSummaryContext?.Title?.Html);
+        Assert.Equal(titleHtml, errorSummaryContext?.Title?.Html?.ToHtmlString());
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Threading.Tasks;
 using GovUk.Frontend.AspNetCore.ComponentGeneration;
 using GovUk.Frontend.AspNetCore.TagHelpers;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Moq;
 using Xunit;
@@ -31,7 +32,7 @@ public class PhaseBannerTagHelperTests
             getChildContentAsync: (useCachedResult, encoder) =>
             {
                 var pbContext = context.GetContextItem<PhaseBannerContext>();
-                pbContext.SetTag(ImmutableDictionary<string, string?>.Empty, html: tagContent);
+                pbContext.SetTag(new EncodedAttributesDictionary(), new HtmlString(tagContent));
 
                 var tagHelperContent = new DefaultTagHelperContent();
                 tagHelperContent.SetContent(message);
@@ -49,8 +50,8 @@ public class PhaseBannerTagHelperTests
 
         // Assert
         Assert.NotNull(actualOptions);
-        Assert.Equal(tagContent, actualOptions!.Tag?.Html);
-        Assert.Equal(message, actualOptions!.Html);
+        Assert.Equal(tagContent, actualOptions!.Tag?.Html?.ToHtmlString());
+        Assert.Equal(message, actualOptions!.Html?.ToHtmlString());
     }
 
     [Fact]

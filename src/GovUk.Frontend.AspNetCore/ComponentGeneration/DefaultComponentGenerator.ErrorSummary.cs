@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using HtmlTags;
+using Microsoft.AspNetCore.Html;
 
 namespace GovUk.Frontend.AspNetCore.ComponentGeneration;
 
@@ -13,36 +13,50 @@ public partial class DefaultComponentGenerator
     internal const string ErrorSummaryTitleElement = "h2";
 
     /// <inheritdoc/>
-    public virtual HtmlTag GenerateErrorSummary(ErrorSummaryOptions options)
+    public virtual HtmlTagBuilder GenerateErrorSummary(ErrorSummaryOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
         options.Validate();
 
-        return new HtmlTag(ErrorSummaryElement)
-            .AddClass("govuk-error-summary")
-            .AddClasses(ExplodeClasses(options.Classes))
-            .AddEncodedAttributeIf(options.DisableAutoFocus.HasValue, "data-disable-auto-focus", options.DisableAutoFocus == true ? "true" : "false")
-            .MergeEncodedAttributes(options.Attributes)
-            .UnencodedAttr("data-module", "govuk-error-summary")
-            .Append(new HtmlTag("div")
-                .UnencodedAttr("role", "alert")
-                .Append(new HtmlTag(ErrorSummaryTitleElement)
-                    .AddClass("govuk-error-summary__title")
-                    .MergeEncodedAttributes(options.TitleAttributes)
-                    .AppendHtml(GetEncodedTextOrHtml(options.TitleText, options.TitleHtml) ?? ErrorSummaryDefaultTitle))
-                .Append(new HtmlTag("div")
-                    .AddClass("govuk-error-summary__body")
-                    .AppendIf(
-                        options.DescriptionHtml.NormalizeEmptyString() is not null || options.DescriptionText.NormalizeEmptyString() is not null,
-                        () => new HtmlTag(ErrorSummaryDescriptionElement)
-                            .MergeEncodedAttributes(options.DescriptionAttributes)
-                            .AppendHtml(GetEncodedTextOrHtml(options.DescriptionText, options.DescriptionHtml)))
-                    .Append(new HtmlTag("ul")
-                        .AddClasses("govuk-list", "govuk-error-summary__list")
-                        .Append((options.ErrorList ?? Enumerable.Empty<ErrorSummaryOptionsErrorItem>()).Select(item => new HtmlTag(ErrorSummaryItemElement)
-                            .MergeEncodedAttributes(item.ItemAttributes)
-                            .Append((item.Href.NormalizeEmptyString() is not null ? new HtmlTag("a").MergeEncodedAttributes(item.Attributes) : new HtmlTag("").NoTag())
-                                .AddEncodedAttributeIfNotNull("href", item.Href.NormalizeEmptyString())
-                                .AppendHtml(GetEncodedTextOrHtml(item.Text, item.Html))))))));
+        return new HtmlTagBuilder(ErrorSummaryElement)
+            .WithCssClass("govuk-error-summary")
+            .WithCssClasses(ExplodeClasses(options.Classes?.ToHtmlString()))
+            .WhenNotNull(
+                options.DisableAutoFocus,
+                (daf, b) => b.WithAttribute("data-disable-auto-focus", daf == true ? "true" : "false", encodeValue: false))
+            .WithAttributes(options.Attributes)
+            .WithAttribute("data-module", "govuk-error-summary", encodeValue: false)
+            .WithAppendedHtml(new HtmlTagBuilder("div")
+                .WithAttribute("role", "alert", encodeValue: false)
+                .WithAppendedHtml(new HtmlTagBuilder(ErrorSummaryTitleElement)
+                    .WithCssClass("govuk-error-summary__title")
+                    .WithAttributes(options.TitleAttributes)
+                    .WithAppendedHtml(GetEncodedTextOrHtml(options.TitleText, options.TitleHtml) ??
+                                      new HtmlString(ErrorSummaryDefaultTitle)))
+                .WithAppendedHtml(new HtmlTagBuilder("div")
+                    .WithCssClass("govuk-error-summary__body")
+                    .When(
+                        options.DescriptionHtml.NormalizeEmptyString() is not null ||
+                        options.DescriptionText.NormalizeEmptyString() is not null,
+                        b => b.WithAppendedHtml(new HtmlTagBuilder(ErrorSummaryDescriptionElement)
+                            .WithAttributes(options.DescriptionAttributes)
+                            .WithAppendedHtml(GetEncodedTextOrHtml(options.DescriptionText, options.DescriptionHtml)!)))
+                    .WithAppendedHtml(new HtmlTagBuilder("ul")
+                        .WithCssClasses("govuk-list", "govuk-error-summary__list")
+                        .WithAppendedHtml(
+                            (options.ErrorList ?? Enumerable.Empty<ErrorSummaryOptionsErrorItem>()).Select(item =>
+                                new HtmlTagBuilder(ErrorSummaryItemElement)
+                                    .WithAttributes(item.ItemAttributes)
+                                    .WithAppendedHtml(() =>
+                                    {
+                                        var content = GetEncodedTextOrHtml(item.Text, item.Html)!;
+
+                                        return item.Href.NormalizeEmptyString() is not null
+                                            ? new HtmlTagBuilder("a")
+                                                .WithAttributes(item.Attributes)
+                                                .WithAttribute("href", item.Href!)
+                                                .WithAppendedHtml(content)
+                                            : content;
+                                    }))))));
     }
 }

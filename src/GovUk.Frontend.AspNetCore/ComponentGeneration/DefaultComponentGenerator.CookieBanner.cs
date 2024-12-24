@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using HtmlTags;
+using Microsoft.AspNetCore.Html;
 
 namespace GovUk.Frontend.AspNetCore.ComponentGeneration;
 
@@ -9,59 +9,60 @@ public partial class DefaultComponentGenerator
     internal const string CookieBannerElement = "div";
 
     /// <inheritdoc/>
-    public HtmlTag GenerateCookieBanner(CookieBannerOptions options)
+    public virtual HtmlTagBuilder GenerateCookieBanner(CookieBannerOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
         options.Validate();
 
-        return new HtmlTag(CookieBannerElement)
-            .AddClass("govuk-cookie-banner")
-            .AddClasses(ExplodeClasses(options.Classes))
-            .BooleanAttr("data-nosnippet")
-            .UnencodedAttr("role", "region")
-            .UnencodedAttr("aria-label", options.AriaLabel ?? "Cookie banner")
-            .AddBooleanAttributeIf(options.Hidden == true, "hidden")
-            .MergeEncodedAttributes(options.Attributes)
-            .Append((options.Messages ?? Array.Empty<CookieBannerOptionsMessage>()).Select(message => new HtmlTag("div")
-                .AddClasses("govuk-cookie-banner__message", "govuk-width-container")
-                .AddClasses(ExplodeClasses(message.Classes))
-                .AddEncodedAttributeIfNotNull("role", message.Role)
-                .MergeEncodedAttributes(message.Attributes)
-                .AddBooleanAttributeIf(message.Hidden == true, "hidden")
-                .Append(new HtmlTag("div")
-                    .AddClass("govuk-grid-row")
-                    .Append(new HtmlTag("div")
-                        .AddClass("govuk-grid-column-two-thirds")
-                        .AppendIf(
-                            (message.HeadingText.NormalizeEmptyString() ?? message.HeadingHtml.NormalizeEmptyString()) is not null,
-                            () => new HtmlTag("h2")
-                                .AddClasses("govuk-cookie-banner__heading", "govuk-heading-m")
-                                .AppendHtml(GetEncodedTextOrHtml(message.HeadingText, message.HeadingHtml)))
-                        .Append(new HtmlTag("div")
-                            .AddClass("govuk-cookie-banner__content")
-                            .AppendHtmlIf(
-                                (message.Html.NormalizeEmptyString() ?? message.Text.NormalizeEmptyString()) is not null,
-                                message.Html.NormalizeEmptyString() ?? new HtmlTag("p").AddClass("govuk-body").AppendText(message.Text).ToHtmlString()))))
-                .AppendIf(
+        return new HtmlTagBuilder(CookieBannerElement)
+            .WithCssClass("govuk-cookie-banner")
+            .WithCssClasses(ExplodeClasses(options.Classes?.ToHtmlString()))
+            .WithBooleanAttribute("data-nosnippet")
+            .WithAttribute("role", "region", encodeValue: false)
+            .WithAttribute("aria-label", options.AriaLabel ?? new HtmlString("Cookie banner"))
+            .When(options.Hidden == true, b => b.WithBooleanAttribute("hidden"))
+            .WithAttributes(options.Attributes)
+            .WithAppendedHtml((options.Messages ?? Array.Empty<CookieBannerOptionsMessage>()).Select(message => new HtmlTagBuilder("div")
+                .WithCssClasses("govuk-cookie-banner__message", "govuk-width-container")
+                .WithCssClasses(ExplodeClasses(message.Classes?.ToHtmlString()))
+                .WithAttributeWhenNotNull(message.Role, "role")
+                .WithAttributes(message.Attributes)
+                .When(message.Hidden == true, b => b.WithBooleanAttribute("hidden"))
+                .WithAppendedHtml(new HtmlTagBuilder("div")
+                    .WithCssClass("govuk-grid-row")
+                    .WithAppendedHtml(new HtmlTagBuilder("div")
+                        .WithCssClass("govuk-grid-column-two-thirds")
+                        .When(
+                            message.HeadingText.NormalizeEmptyString() is not null || message.HeadingHtml.NormalizeEmptyString() is not null,
+                            b => b.WithAppendedHtml(new HtmlTagBuilder("h2")
+                                .WithCssClasses("govuk-cookie-banner__heading", "govuk-heading-m")
+                                .WithAppendedHtml(GetEncodedTextOrHtml(message.HeadingText, message.HeadingHtml)!)))
+                        .WithAppendedHtml(new HtmlTagBuilder("div")
+                            .WithCssClass("govuk-cookie-banner__content")
+                            .When(
+                                message.Html.NormalizeEmptyString() is not null || message.Text.NormalizeEmptyString() is not null,
+                                b => b.WithAppendedHtml(
+                                    message.Html.NormalizeEmptyString() ?? new HtmlTagBuilder("p").WithCssClass("govuk-body").WithAppendedText(message.Text!))))))
+                .When(
                     message.Actions is not null,
-                    () => new HtmlTag("div")
-                        .AddClass("govuk-button-group")
-                        .Append(message.Actions!.Select(action => string.IsNullOrEmpty(action.Href) || action.Type == "button" ?
+                    b => b.WithAppendedHtml(new HtmlTagBuilder("div")
+                        .WithCssClass("govuk-button-group")
+                        .WithAppendedHtml(message.Actions!.Select(action => action.Href.NormalizeEmptyString() is null || action.Type?.ToHtmlString() == "button" ?
                             GenerateButton(new ButtonOptions()
                             {
                                 Text = action.Text,
-                                Type = action.Type ?? "button",
+                                Type = action.Type ?? new HtmlString("button"),
                                 Name = action.Name,
                                 Value = action.Value,
                                 Classes = action.Classes,
                                 Href = action.Href,
                                 Attributes = action.Attributes,
                             }) :
-                            new HtmlTag("a")
-                                .AddClass("govuk-link")
-                                .AddClasses(ExplodeClasses(action.Classes))
-                                .UnencodedAttr("href", action.Href)
-                                .MergeEncodedAttributes(action.Attributes)
-                                .Text(action.Text))))));
+                            new HtmlTagBuilder("a")
+                                .WithCssClass("govuk-link")
+                                .WithCssClasses(ExplodeClasses(action.Classes?.ToHtmlString()))
+                                .WithAttribute("href", action.Href ?? new HtmlString(""))
+                                .WithAttributes(action.Attributes)
+                                .WithAppendedText(action.Text!)))))));
     }
 }

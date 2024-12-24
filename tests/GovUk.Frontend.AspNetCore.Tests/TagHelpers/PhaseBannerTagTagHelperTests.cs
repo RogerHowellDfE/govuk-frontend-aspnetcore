@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
+using GovUk.Frontend.AspNetCore.ComponentGeneration;
 using GovUk.Frontend.AspNetCore.TagHelpers;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Xunit;
 
@@ -42,7 +44,7 @@ public class PhaseBannerTagTagHelperTests
         await tagHelper.ProcessAsync(context, output);
 
         // Assert
-        Assert.Equal(legendHtml, phaseBannerContext.Tag?.Html);
+        Assert.Equal(legendHtml, phaseBannerContext.Tag?.Html?.ToHtmlString());
     }
 
     [Fact]
@@ -50,7 +52,7 @@ public class PhaseBannerTagTagHelperTests
     {
         // Arrange
         var phaseBannerContext = new PhaseBannerContext();
-        phaseBannerContext.SetTag(ImmutableDictionary<string, string?>.Empty, html: "Existing tag");
+        phaseBannerContext.SetTag(new EncodedAttributesDictionary(), new HtmlString("Existing tag"));
 
         var context = new TagHelperContext(
             tagName: "govuk-phase-banner-tag",

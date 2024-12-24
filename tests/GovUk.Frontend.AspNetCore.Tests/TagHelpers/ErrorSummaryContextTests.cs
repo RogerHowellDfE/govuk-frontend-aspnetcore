@@ -2,6 +2,7 @@ using System;
 using System.Collections.Immutable;
 using GovUk.Frontend.AspNetCore.ComponentGeneration;
 using GovUk.Frontend.AspNetCore.TagHelpers;
+using Microsoft.AspNetCore.Html;
 using Xunit;
 
 namespace GovUk.Frontend.AspNetCore.Tests.TagHelpers;
@@ -16,8 +17,8 @@ public class ErrorSummaryContextTests
 
         var item = new ErrorSummaryOptionsErrorItem()
         {
-            Html = "An error message",
-            Href = "#TheField"
+            Html = new HtmlString("An error message"),
+            Href = new HtmlString("#TheField")
         };
 
         // Act
@@ -28,8 +29,8 @@ public class ErrorSummaryContextTests
             context.Items,
             item =>
             {
-                Assert.Equal("An error message", item.Html);
-                Assert.Equal("#TheField", item.Href);
+                Assert.Equal("An error message", item.Html?.ToHtmlString());
+                Assert.Equal("#TheField", item.Href?.ToHtmlString());
             });
     }
 
@@ -40,10 +41,10 @@ public class ErrorSummaryContextTests
         var context = new ErrorSummaryContext();
 
         // Act
-        context.SetDescription(ImmutableDictionary<string, string?>.Empty, html: "Description");
+        context.SetDescription(new EncodedAttributesDictionary(), html: new HtmlString("Description"));
 
         // Assert
-        Assert.Equal("Description", context.Description?.Html);
+        Assert.Equal("Description", context.Description?.Html?.ToHtmlString());
     }
 
     [Fact]
@@ -51,10 +52,10 @@ public class ErrorSummaryContextTests
     {
         // Arrange
         var context = new ErrorSummaryContext();
-        context.SetDescription(ImmutableDictionary<string, string?>.Empty, html: "Existing description");
+        context.SetDescription(new EncodedAttributesDictionary(), html: new HtmlString("Existing description"));
 
         // Act
-        var ex = Record.Exception(() => context.SetDescription(ImmutableDictionary<string, string?>.Empty, html: "Description"));
+        var ex = Record.Exception(() => context.SetDescription(new EncodedAttributesDictionary(), html: new HtmlString("Description")));
 
         // Assert
         Assert.IsType<InvalidOperationException>(ex);
@@ -68,10 +69,10 @@ public class ErrorSummaryContextTests
         var context = new ErrorSummaryContext();
 
         // Act
-        context.SetTitle(ImmutableDictionary<string, string?>.Empty, html: "Title");
+        context.SetTitle(new EncodedAttributesDictionary(), html: new HtmlString("Title"));
 
         // Assert
-        Assert.Equal("Title", context.Title?.Html);
+        Assert.Equal("Title", context.Title?.Html?.ToHtmlString());
     }
 
     [Fact]
@@ -79,10 +80,10 @@ public class ErrorSummaryContextTests
     {
         // Arrange
         var context = new ErrorSummaryContext();
-        context.SetTitle(ImmutableDictionary<string, string?>.Empty, html: "Existing title");
+        context.SetTitle(new EncodedAttributesDictionary(), html: new HtmlString("Existing title"));
 
         // Act
-        var ex = Record.Exception(() => context.SetTitle(ImmutableDictionary<string, string?>.Empty, html: "Title"));
+        var ex = Record.Exception(() => context.SetTitle(new EncodedAttributesDictionary(), html: new HtmlString("Title")));
 
         // Assert
         Assert.IsType<InvalidOperationException>(ex);

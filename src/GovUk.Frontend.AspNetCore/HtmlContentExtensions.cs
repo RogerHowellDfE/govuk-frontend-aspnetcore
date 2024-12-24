@@ -14,6 +14,11 @@ public static class HtmlContentExtensions
     /// </summary>
     public static string ToHtmlString(this IHtmlContent content)
     {
+        if (content is HtmlString htmlString)
+        {
+            return htmlString.Value ?? "";
+        }
+
         using var writer = new StringWriter();
         content.WriteTo(writer, HtmlEncoder.Default);
         return writer.ToString();

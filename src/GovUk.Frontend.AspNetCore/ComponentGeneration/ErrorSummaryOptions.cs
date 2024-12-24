@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Html;
 
 namespace GovUk.Frontend.AspNetCore.ComponentGeneration;
 
@@ -8,18 +8,18 @@ namespace GovUk.Frontend.AspNetCore.ComponentGeneration;
 public class ErrorSummaryOptions
 {
     public string? TitleText { get; set; }
-    public string? TitleHtml { get; set; }
+    public IHtmlContent? TitleHtml { get; set; }
     public string? DescriptionText { get; set; }
-    public string? DescriptionHtml { get; set; }
+    public IHtmlContent? DescriptionHtml { get; set; }
     public IReadOnlyCollection<ErrorSummaryOptionsErrorItem>? ErrorList { get; set; }
-    public string? Classes { get; set; }
-    public IReadOnlyDictionary<string, string?>? Attributes { get; set; }
+    public IHtmlContent? Classes { get; set; }
+    public EncodedAttributesDictionary? Attributes { get; set; }
     public bool? DisableAutoFocus { get; set; }
 
     [NonStandardParameter]
-    public IReadOnlyDictionary<string, string?>? TitleAttributes { get; set; }
+    public EncodedAttributesDictionary? TitleAttributes { get; set; }
     [NonStandardParameter]
-    public IReadOnlyDictionary<string, string?>? DescriptionAttributes { get; set; }
+    public EncodedAttributesDictionary? DescriptionAttributes { get; set; }
 
     internal void Validate()
     {
@@ -36,13 +36,13 @@ public class ErrorSummaryOptions
 
 public class ErrorSummaryOptionsErrorItem
 {
-    public string? Href { get; set; }
+    public IHtmlContent? Href { get; set; }
     public string? Text { get; set; }
-    public string? Html { get; set; }
-    public IReadOnlyDictionary<string, string?>? Attributes { get; set; }
+    public IHtmlContent? Html { get; set; }
+    public EncodedAttributesDictionary? Attributes { get; set; }
 
     [NonStandardParameter]
-    public IReadOnlyDictionary<string, string?>? ItemAttributes { get; set; }
+    public EncodedAttributesDictionary? ItemAttributes { get; set; }
 
     internal void Validate(int itemIndex)
     {

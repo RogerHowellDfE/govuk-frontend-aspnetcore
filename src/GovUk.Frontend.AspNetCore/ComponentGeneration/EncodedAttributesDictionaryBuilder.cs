@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Html;
 
 namespace GovUk.Frontend.AspNetCore.ComponentGeneration;
@@ -13,11 +14,9 @@ internal class EncodedAttributesDictionaryBuilder
     {
     }
 
-    public EncodedAttributesDictionaryBuilder(EncodedAttributesDictionary dictionary)
+    public EncodedAttributesDictionaryBuilder(EncodedAttributesDictionary? dictionary)
     {
-        ArgumentNullException.ThrowIfNull(dictionary);
-
-        _dictionary = dictionary;
+        _dictionary = dictionary?.Clone() ?? new();
     }
 
     public EncodedAttributesDictionaryBuilder WithBoolean(string name)
@@ -27,9 +26,12 @@ internal class EncodedAttributesDictionaryBuilder
         return this;
     }
 
-    public EncodedAttributesDictionaryBuilder WithOther(EncodedAttributesDictionary other)
+    public EncodedAttributesDictionaryBuilder WithOther(EncodedAttributesDictionary? other)
     {
-        _dictionary.Add(other);
+        if (other is not null)
+        {
+            _dictionary.Add(other);
+        }
 
         return this;
     }
@@ -54,6 +56,9 @@ internal class EncodedAttributesDictionaryBuilder
 
         return this;
     }
+
+    public EncodedAttributesDictionaryBuilder WithCssClasses(params string[] classNames) =>
+        WithCssClasses(classNames.AsEnumerable());
 
     public EncodedAttributesDictionaryBuilder WithCssClasses(IEnumerable<string> classNames)
     {
@@ -88,6 +93,24 @@ internal class EncodedAttributesDictionaryBuilder
 
     internal EncodedAttributesDictionaryBuilder WhenNotNull<T>(T? value, Action<T, EncodedAttributesDictionaryBuilder> action) =>
         WhenNotNull(() => value, action);
+
+    internal EncodedAttributesDictionaryBuilder WithWhenNotNull(Func<string?> getValue, string name, bool encodedValue) =>
+        WhenNotNull(getValue(), (value, b) => b.With(name, value, encodedValue));
+
+    internal EncodedAttributesDictionaryBuilder WithWhenNotNull(string? value, string name, bool encodedValue) =>
+        WhenNotNull(value, (_, b) => b.With(name, value!, encodedValue));
+
+    internal EncodedAttributesDictionaryBuilder WithWhenNotNull(Func<IHtmlContent?> getValue, string name) =>
+        WhenNotNull(getValue(), (value, b) => b.With(name, value));
+
+    internal EncodedAttributesDictionaryBuilder WithWhenNotNull(IHtmlContent? value, string name) =>
+        WhenNotNull(value, (_, b) => b.With(name, value!));
+
+    internal EncodedAttributesDictionaryBuilder Without(string name, out IHtmlContent? value)
+    {
+        _dictionary.Remove(name, out value);
+        return this;
+    }
 
     public static implicit operator EncodedAttributesDictionary(EncodedAttributesDictionaryBuilder builder) => builder._dictionary;
 }

@@ -1,5 +1,4 @@
 using System;
-using HtmlTags;
 
 namespace GovUk.Frontend.AspNetCore.ComponentGeneration;
 
@@ -8,20 +7,20 @@ public partial class DefaultComponentGenerator
     internal const string PhaseBannerElement = "div";
 
     /// <inheritdoc/>
-    public virtual HtmlTag GeneratePhaseBanner(PhaseBannerOptions options)
+    public virtual HtmlTagBuilder GeneratePhaseBanner(PhaseBannerOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
         options.Validate();
 
-        return new HtmlTag(PhaseBannerElement)
-            .AddClass("govuk-phase-banner")
-            .AddClasses(ExplodeClasses(options.Classes))
-            .MergeEncodedAttributes(options.Attributes)
-            .Append(new HtmlTag("p")
-                .AddClass("govuk-phase-banner__content")
-                .Append(GenerateTag(options.Tag!).AddClass("govuk-phase-banner__content__tag"))
-                .Append(new HtmlTag("span")
-                    .AddClass("govuk-phase-banner__text")
-                    .AppendHtml(GetEncodedTextOrHtml(options.Text, options.Html))));
+        return new HtmlTagBuilder(PhaseBannerElement)
+            .WithCssClass("govuk-phase-banner")
+            .WithCssClasses(ExplodeClasses(options.Classes?.ToHtmlString()))
+            .WithAttributes(options.Attributes)
+            .WithAppendedHtml(new HtmlTagBuilder("p")
+                .WithCssClass("govuk-phase-banner__content")
+                .WithAppendedHtml(GenerateTag(options.Tag!).WithCssClass("govuk-phase-banner__content__tag"))
+                .WithAppendedHtml(new HtmlTagBuilder("span")
+                    .WithCssClass("govuk-phase-banner__text")
+                    .WithAppendedHtml(GetEncodedTextOrHtml(options.Text, options.Html)!)));
     }
 }

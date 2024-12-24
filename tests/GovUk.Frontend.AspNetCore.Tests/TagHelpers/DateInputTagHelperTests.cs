@@ -1080,8 +1080,8 @@ public class DateInputTagHelperTests
             containerErrorContext.Errors,
             error =>
             {
-                Assert.Equal("Error", error.Html);
-                Assert.Equal("#" + expectedErrorFieldId, error.Href);
+                Assert.Equal("Error", error.Html?.ToHtmlString());
+                Assert.Equal("#" + expectedErrorFieldId, error.Href?.ToHtmlString());
             });
     }
 

@@ -1,5 +1,4 @@
 using System;
-using HtmlTags;
 
 namespace GovUk.Frontend.AspNetCore.ComponentGeneration;
 
@@ -9,23 +8,23 @@ public partial class DefaultComponentGenerator
     internal const bool LabelDefaultIsPageHeading = false;
 
     /// <inheritdoc/>
-    public virtual HtmlTag GenerateLabel(LabelOptions options)
+    public virtual HtmlTagBuilder GenerateLabel(LabelOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
         options.Validate();
 
-        var label = new HtmlTag(LabelElement)
-            .AddEncodedAttributeIfNotNull("for", options.For)
-            .AddClass("govuk-label")
-            .AddClasses(ExplodeClasses(options.Classes))
-            .MergeEncodedAttributes(options.Attributes)
-            .AppendHtml(GetEncodedTextOrHtml(options.Text, options.Html));
+        var label = new HtmlTagBuilder(LabelElement)
+            .WithAttributeWhenNotNull(options.For, "for")
+            .WithCssClass("govuk-label")
+            .WithCssClasses(ExplodeClasses(options.Classes?.ToHtmlString()))
+            .WithAttributes(options.Attributes)
+            .WithAppendedHtml(GetEncodedTextOrHtml(options.Text, options.Html)!);
 
         if (options.IsPageHeading ?? LabelDefaultIsPageHeading)
         {
-            return new HtmlTag("h1")
-                .AddClass("govuk-label-wrapper")
-                .Append(label);
+            return new HtmlTagBuilder("h1")
+                .WithCssClass("govuk-label-wrapper")
+                .WithAppendedHtml(label);
         }
         else
         {

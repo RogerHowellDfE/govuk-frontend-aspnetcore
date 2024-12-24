@@ -1,5 +1,5 @@
 using System;
-using HtmlTags;
+using Microsoft.AspNetCore.Html;
 
 namespace GovUk.Frontend.AspNetCore.ComponentGeneration;
 
@@ -9,22 +9,22 @@ public partial class DefaultComponentGenerator
     internal const string ErrorMessageDefaultVisuallyHiddenText = "Error";
 
     /// <inheritdoc/>
-    public virtual HtmlTag GenerateErrorMessage(ErrorMessageOptions options)
+    public virtual HtmlTagBuilder GenerateErrorMessage(ErrorMessageOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
         options.Validate();
 
-        return new HtmlTag(ErrorMessageElement)
-            .AddClass("govuk-error-message")
-            .AddClasses(ExplodeClasses(options.Classes))
-            .AddEncodedAttributeIfNotNull("id", options.Id)
-            .MergeEncodedAttributes(options.Attributes)
-            .AppendIf(
-                options.VisuallyHiddenText != string.Empty,
-                () => new HtmlTag("span")
-                    .AddClass("govuk-visually-hidden")
-                    .AppendText(options.VisuallyHiddenText ?? ErrorMessageDefaultVisuallyHiddenText)
-                    .AppendText(": "))
-            .AppendHtml(GetEncodedTextOrHtml(options.Text, options.Html));
+        return new HtmlTagBuilder(ErrorMessageElement)
+            .WithCssClass("govuk-error-message")
+            .WithCssClasses(ExplodeClasses(options.Classes?.ToHtmlString()))
+            .WithAttributeWhenNotNull(options.Id, "id")
+            .WithAttributes(options.Attributes)
+            .When(
+                options.VisuallyHiddenText?.ToHtmlString() != "",
+                b => b.WithAppendedHtml(new HtmlTagBuilder("span")
+                    .WithCssClass("govuk-visually-hidden")
+                    .WithAppendedHtml(options.VisuallyHiddenText ?? new HtmlString(ErrorMessageDefaultVisuallyHiddenText))
+                    .WithAppendedText(": ")))
+            .WithAppendedHtml(GetEncodedTextOrHtml(options.Text, options.Html)!);
     }
 }

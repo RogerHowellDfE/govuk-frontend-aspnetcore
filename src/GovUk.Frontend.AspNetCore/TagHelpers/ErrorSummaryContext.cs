@@ -2,14 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using GovUk.Frontend.AspNetCore.ComponentGeneration;
+using Microsoft.AspNetCore.Html;
 
 namespace GovUk.Frontend.AspNetCore.TagHelpers;
 
 internal class ErrorSummaryContext
 {
-    internal record DescriptionInfo(ImmutableDictionary<string, string?> Attributes, string Html);
+    internal record DescriptionInfo(EncodedAttributesDictionary Attributes, IHtmlContent Html);
 
-    internal record TitleInfo(ImmutableDictionary<string, string?> Attributes, string Html);
+    internal record TitleInfo(EncodedAttributesDictionary Attributes, IHtmlContent Html);
 
     private readonly List<ErrorSummaryOptionsErrorItem> _items;
 
@@ -33,10 +34,10 @@ internal class ErrorSummaryContext
     }
 
     public void AddItem(
-        string? href,
-        string html,
-        ImmutableDictionary<string, string?> attributes,
-        ImmutableDictionary<string, string?> itemAttributes)
+        IHtmlContent? href,
+        IHtmlContent html,
+        EncodedAttributesDictionary attributes,
+        EncodedAttributesDictionary itemAttributes)
     {
         ArgumentNullException.ThrowIfNull(html);
         ArgumentNullException.ThrowIfNull(attributes);
@@ -52,17 +53,17 @@ internal class ErrorSummaryContext
         });
     }
 
-    public (ImmutableDictionary<string, string?> Attributes, string Html)? GetTitle() =>
+    public (EncodedAttributesDictionary Attributes, IHtmlContent Html)? GetTitle() =>
         Title is not null ?
         (Title.Attributes, Title.Html) :
         null;
 
-    public (ImmutableDictionary<string, string?> Attributes, string Html)? GetDescription() =>
+    public (EncodedAttributesDictionary Attributes, IHtmlContent Html)? GetDescription() =>
         Description is not null ?
         (Description.Attributes, Description.Html) :
         null;
 
-    public void SetDescription(ImmutableDictionary<string, string?> attributes, string html)
+    public void SetDescription(EncodedAttributesDictionary attributes, IHtmlContent html)
     {
         ArgumentNullException.ThrowIfNull(attributes);
         ArgumentNullException.ThrowIfNull(html);
@@ -77,7 +78,7 @@ internal class ErrorSummaryContext
         Description = new DescriptionInfo(attributes, html);
     }
 
-    public void SetTitle(ImmutableDictionary<string, string?> attributes, string html)
+    public void SetTitle(EncodedAttributesDictionary attributes, IHtmlContent html)
     {
         ArgumentNullException.ThrowIfNull(attributes);
         ArgumentNullException.ThrowIfNull(html);

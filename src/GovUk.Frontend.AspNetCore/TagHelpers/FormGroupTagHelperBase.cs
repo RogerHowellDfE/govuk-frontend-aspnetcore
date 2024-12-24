@@ -164,7 +164,7 @@ public abstract class FormGroupTagHelperBase : TagHelper
                 var errorFieldId = GetErrorFieldId(tagHelperContext);
                 var href = "#" + errorFieldId;
 
-                containerErrorContext.AddError(content.ToHtmlString(), href);
+                containerErrorContext.AddError(content, new HtmlString(href));
             }
         }
     }

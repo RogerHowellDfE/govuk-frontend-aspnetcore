@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using Microsoft.AspNetCore.Html;
 
 namespace GovUk.Frontend.AspNetCore.ComponentGeneration;
 
@@ -6,13 +6,12 @@ namespace GovUk.Frontend.AspNetCore.ComponentGeneration;
 
 public class FieldsetOptions
 {
-    public string? DescribedBy { get; set; }
+    public IHtmlContent? DescribedBy { get; set; }
     public FieldsetOptionsLegend? Legend { get; set; }
-    public string? Role { get; set; }
-    public string? Text { get; set; }
-    public string? Html { get; set; }
-    public string? Classes { get; set; }
-    public IReadOnlyDictionary<string, string?>? Attributes { get; set; }
+    public IHtmlContent? Role { get; set; }
+    public IHtmlContent? Html { get; set; }
+    public IHtmlContent? Classes { get; set; }
+    public EncodedAttributesDictionary? Attributes { get; set; }
 
     internal void Validate()
     {
@@ -28,12 +27,12 @@ public class FieldsetOptions
 public class FieldsetOptionsLegend
 {
     public string? Text { get; set; }
-    public string? Html { get; set; }
+    public IHtmlContent? Html { get; set; }
     public bool? IsPageHeading { get; set; }
-    public string? Classes { get; set; }
+    public IHtmlContent? Classes { get; set; }
 
     [NonStandardParameter]
-    public IReadOnlyDictionary<string, string?>? Attributes { get; set; }
+    public EncodedAttributesDictionary? Attributes { get; set; }
 
     internal void Validate()
     {

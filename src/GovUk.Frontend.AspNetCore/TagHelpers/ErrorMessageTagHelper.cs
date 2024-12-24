@@ -34,7 +34,7 @@ public class ErrorMessageTagHelper : TagHelper
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
         var childContent = output.TagMode == TagMode.StartTagAndEndTag ?
-            await output.GetChildContentAsync() :
+            (await output.GetChildContentAsync()).Snapshot() :
             null;
 
         if (output.Content.IsModified)
@@ -45,9 +45,9 @@ public class ErrorMessageTagHelper : TagHelper
         var formGroupContext = context.GetContextItem<FormGroupContext2>();
 
         formGroupContext.SetErrorMessage(
-            VisuallyHiddenText,
-            output.Attributes.ToEncodedAttributeDictionary(),
-            childContent?.ToHtmlString(),
+            VisuallyHiddenText.ToHtmlContent(),
+            new EncodedAttributesDictionary(output.Attributes),
+            childContent,
             output.TagName);
 
         output.SuppressOutput();

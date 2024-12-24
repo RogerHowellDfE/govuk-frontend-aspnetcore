@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using Microsoft.AspNetCore.Html;
 
 namespace GovUk.Frontend.AspNetCore.ComponentGeneration;
 
@@ -7,15 +7,15 @@ namespace GovUk.Frontend.AspNetCore.ComponentGeneration;
 public record ExitThisPageOptions
 {
     public string? Text { get; set; }
-    public string? Html { get; set; }
-    public string? RedirectUrl { get; set; }
-    public string? Id { get; set; }
-    public string? Classes { get; set; }
-    public IReadOnlyDictionary<string, string?>? Attributes { get; set; }
-    public string? ActivatedText { get; set; }
-    public string? TimedOutText { get; set; }
-    public string? PressTwoMoreTimesText { get; set; }
-    public string? PressOneMoreTimeText { get; set; }
+    public IHtmlContent? Html { get; set; }
+    public IHtmlContent? RedirectUrl { get; set; }
+    public IHtmlContent? Id { get; set; }
+    public IHtmlContent? Classes { get; set; }
+    public EncodedAttributesDictionary? Attributes { get; set; }
+    public IHtmlContent? ActivatedText { get; set; }
+    public IHtmlContent? TimedOutText { get; set; }
+    public IHtmlContent? PressTwoMoreTimesText { get; set; }
+    public IHtmlContent? PressOneMoreTimeText { get; set; }
 
     internal void Validate()
     {

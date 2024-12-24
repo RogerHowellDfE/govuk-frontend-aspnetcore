@@ -1,14 +1,13 @@
 using System;
-using System.Collections.Immutable;
 using System.Diagnostics;
-using HtmlTags;
+using Microsoft.AspNetCore.Html;
 
 namespace GovUk.Frontend.AspNetCore.ComponentGeneration;
 
 public partial class DefaultComponentGenerator
 {
     /// <inheritdoc/>
-    public virtual HtmlTag GenerateButton(ButtonOptions options)
+    public virtual HtmlTagBuilder GenerateButton(ButtonOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
         options.Validate();
@@ -16,69 +15,66 @@ public partial class DefaultComponentGenerator
         var classes = ($"govuk-button " + options.Classes).TrimEnd();
         var element = options.GetElement();
 
-        HtmlTag? iconHtml = null;
+        HtmlTagBuilder? iconHtml = null;
         if (options.IsStartButton == true)
         {
-            iconHtml = new HtmlTag("svg")
-                .AddClass("govuk-button__start-icon")
-                .UnencodedAttr("xmlns", "http://www.w3.org/2000/svg")
-                .UnencodedAttr("width", "17.5")
-                .UnencodedAttr("height", "19")
-                .UnencodedAttr("viewbox", "0 0 33 40")
-                .UnencodedAttr("aria-hidden", "true")
-                .UnencodedAttr("focusable", "false")
-                .Append(new HtmlTag("path")
-                    .NoClosingTag()
-                    .UnencodedAttr("fill", "currentColor")
-                    .UnencodedAttr("d", "M0 0h13l20 20-20 20H0l20-20z"));
+            iconHtml = new HtmlTagBuilder("svg")
+                .WithCssClass("govuk-button__start-icon")
+                .WithAttribute("xmlns", "http://www.w3.org/2000/svg", encodeValue: false)
+                .WithAttribute("width", "17.5", encodeValue: false)
+                .WithAttribute("height", "19", encodeValue: false)
+                .WithAttribute("viewbox", "0 0 33 40", encodeValue: false)
+                .WithAttribute("aria-hidden", "true", encodeValue: false)
+                .WithAttribute("focusable", "false", encodeValue: false)
+                .WithAppendedHtml(new HtmlTagBuilder("path")
+                    .WithAttribute("fill", "currentColor", encodeValue: false)
+                    .WithAttribute("d", "M0 0h13l20 20-20 20H0l20-20z", encodeValue: false));
 
             classes += " govuk-button--start";
         }
 
-        var commonAttributes = options.Attributes
-            .ToImmutableDictionary()
-            .Add("class", classes)
-            .Add("data-module", "govuk-button")
-            .AddIfNotNull("id", options.Id.NormalizeEmptyString());
+        var commonAttributes = new EncodedAttributesDictionaryBuilder(options.Attributes)
+            .WithCssClass(classes)
+            .With("data-module", "govuk-button", encodeValue: false)
+            .WithWhenNotNull(options.Id.NormalizeEmptyString(), "id");
 
-        var buttonAttributes = ImmutableDictionary<string, string?>.Empty
-            .AddIfNotNull("name", options.Name.NormalizeEmptyString())
-            .AddIf(options.Disabled == true, "disabled", null)
-            .AddIf(options.Disabled == true, "aria-disabled", "true")
-            .AddIfNotNull("data-prevent-double-click", options.PreventDoubleClick?.ToString().ToLower());
+        var buttonAttributes = new EncodedAttributesDictionaryBuilder()
+            .WithWhenNotNull(options.Name.NormalizeEmptyString(), "name")
+            .When(options.Disabled == true, b => b.WithBoolean("disabled").With("aria-disabled", "true", encodeValue: false))
+            .WhenNotNull(options.PreventDoubleClick, (pdc, b) => b.With("data-prevent-double-click", pdc.ToString()!.ToLower(), encodeValue: false));
 
         if (element == "a")
         {
-            var button = new HtmlTag("a")
-                .UnencodedAttr("href", options.Href.NormalizeEmptyString() ?? "#")
-                .UnencodedAttr("role", "button")
-                .UnencodedAttr("draggable", "false")
-                .MergeEncodedAttributes(commonAttributes)
-                .AppendHtml(GetEncodedTextOrHtml(options.Text, options.Html));
+            var button = new HtmlTagBuilder("a")
+                .WithAttribute("href", options.Href.NormalizeEmptyString() ?? new HtmlString("#"))
+                .WithAttribute("role", "button", encodeValue: false)
+                .WithAttribute("draggable", "false", encodeValue: false)
+                .WithAttributes(commonAttributes)
+                .WithAppendedHtml(GetEncodedTextOrHtml(options.Text, options.Html)!);
 
             if (iconHtml is not null)
             {
-                button.Append(iconHtml);
+                button.WithAppendedHtml(iconHtml);
             }
 
             return button;
         }
         else if (element == "button")
         {
-            var button = new HtmlTag("button")
-                .UnencodedAttr("type", options.Type.NormalizeEmptyString() ?? "submit")
-                .MergeEncodedAttributes(buttonAttributes)
-                .MergeEncodedAttributes(commonAttributes)
-                .AppendHtml(GetEncodedTextOrHtml(options.Text, options.Html));
+            var button = new HtmlTagBuilder("button")
+                .WithAttribute("type", options.Type.NormalizeEmptyString() ?? new HtmlString("submit"))
+                .WithAttributes(buttonAttributes)
+                .WithAttributes(commonAttributes)
+                .WithAppendedHtml(GetEncodedTextOrHtml(options.Text, options.Html)!);
 
-            if (options.Value.NormalizeEmptyString() is string value)
+            if (options.Value.NormalizeEmptyString() is IHtmlContent value)
             {
-                button.UnencodedAttr("value", value);
+                button.WithAttribute("value", value);
             }
 
             if (iconHtml is not null)
             {
-                button.Append(iconHtml);
+                button.WithAppendedHtml(iconHtml);
             }
 
             return button;
@@ -88,11 +84,11 @@ public partial class DefaultComponentGenerator
             Debug.Assert(element == "input");
             Debug.Assert(options.Text.NormalizeEmptyString() is not null);
 
-            return new HtmlTag("input")
-                .UnencodedAttr("value", options.Text)
-                .UnencodedAttr("type", options.Type.NormalizeEmptyString() ?? "submit")
-                .MergeEncodedAttributes(buttonAttributes)
-                .MergeEncodedAttributes(commonAttributes);
+            return new HtmlTagBuilder("input")
+                .WhenNotNull(options.Text, (value, b) => b.WithAttribute("value", value, encodeValue: true))
+                .WithAttribute("type", options.Type.NormalizeEmptyString() ?? new HtmlString("submit"))
+                .WithAttributes(buttonAttributes)
+                .WithAttributes(commonAttributes);
         }
     }
 }

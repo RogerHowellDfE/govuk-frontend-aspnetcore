@@ -1,5 +1,4 @@
 using System;
-using HtmlTags;
 
 namespace GovUk.Frontend.AspNetCore.ComponentGeneration;
 
@@ -10,26 +9,33 @@ public partial class DefaultComponentGenerator
     internal const string FieldsetLegendElement = "legend";
 
     /// <inheritdoc/>
-    public virtual HtmlTag GenerateFieldset(FieldsetOptions options)
+    public virtual HtmlTagBuilder GenerateFieldset(FieldsetOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
         options.Validate();
 
-        return new HtmlTag(FieldsetElement)
-            .AddClass("govuk-fieldset")
-            .AddClasses(ExplodeClasses(options.Classes))
-            .AddEncodedAttributeIfNotNull("role", options.Role.NormalizeEmptyString())
-            .AddEncodedAttributeIfNotNull("aria-describedby", options.DescribedBy.NormalizeEmptyString())
-            .MergeEncodedAttributes(options.Attributes)
-            .AppendIf(
+        return new HtmlTagBuilder(FieldsetElement)
+            .WithCssClass("govuk-fieldset")
+            .WithCssClasses(ExplodeClasses(options.Classes?.ToHtmlString()))
+            .WithAttributeWhenNotNull(options.Role.NormalizeEmptyString(), "role")
+            .WithAttributeWhenNotNull(options.DescribedBy.NormalizeEmptyString(), "aria-describedby")
+            .WithAttributes(options.Attributes)
+            .When(
                 options.Legend is not null,
-                () => new HtmlTag(FieldsetLegendElement)
-                    .AddClass("govuk-fieldset__legend")
-                    .AddClasses(ExplodeClasses(options.Legend?.Classes))
-                    .MergeEncodedAttributes(options.Legend?.Attributes)
-                    .Append((options.Legend!.IsPageHeading ?? FieldsetLegendDefaultIsPageHeading ? new HtmlTag("h1") : new HtmlTag("").NoTag())
-                        .AddClass("govuk-fieldset__heading")
-                        .AppendHtml(GetEncodedTextOrHtml(options.Legend.Text, options.Legend.Html))))
-            .AppendHtml(GetEncodedTextOrHtml(options.Text, options.Html));
+                b => b.WithAppendedHtml(new HtmlTagBuilder(FieldsetLegendElement)
+                    .WithCssClass("govuk-fieldset__legend")
+                    .WithCssClasses(ExplodeClasses(options.Legend?.Classes?.ToHtmlString()))
+                    .WithAttributes(options.Legend?.Attributes)
+                    .WithAppendedHtml(() =>
+                    {
+                        var content = GetEncodedTextOrHtml(options.Legend!.Text, options.Legend.Html)!;
+
+                        return options.Legend!.IsPageHeading ?? FieldsetLegendDefaultIsPageHeading
+                            ? new HtmlTagBuilder("h1")
+                                .WithCssClass("govuk-fieldset__heading")
+                                .WithAppendedHtml(content)
+                            : content;
+                    })))
+            .WhenNotNull(options.Html, (html, b) => b.WithAppendedHtml(html));
     }
 }

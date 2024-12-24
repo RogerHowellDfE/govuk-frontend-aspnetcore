@@ -2,12 +2,13 @@ using System;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using GovUk.Frontend.AspNetCore.ComponentGeneration;
+using Microsoft.AspNetCore.Html;
 
 namespace GovUk.Frontend.AspNetCore.TagHelpers;
 
 internal class PhaseBannerContext
 {
-    internal record TagInfo(ImmutableDictionary<string, string?> Attributes, string Html);
+    internal record TagInfo(EncodedAttributesDictionary Attributes, IHtmlContent Html);
 
     // internal for testing
     internal TagInfo? Tag;
@@ -20,12 +21,12 @@ internal class PhaseBannerContext
         {
             Text = null,
             Html = Tag.Html,
-            Attributes = Tag.Attributes.Remove("class", out var classes),
+            Attributes = new EncodedAttributesDictionaryBuilder(Tag.Attributes).Without("class", out var classes),
             Classes = classes
         };
     }
 
-    public void SetTag(ImmutableDictionary<string, string?> attributes, string html)
+    public void SetTag(EncodedAttributesDictionary attributes, IHtmlContent html)
     {
         ArgumentNullException.ThrowIfNull(attributes);
         ArgumentNullException.ThrowIfNull(html);

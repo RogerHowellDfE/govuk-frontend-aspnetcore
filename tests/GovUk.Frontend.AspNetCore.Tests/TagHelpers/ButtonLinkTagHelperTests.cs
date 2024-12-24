@@ -58,15 +58,15 @@ public class ButtonLinkTagHelperTests
 
         // Assert
         Assert.NotNull(actualOptions);
-        Assert.Equal("a", actualOptions!.Element);
-        Assert.Equal(HtmlEncoder.Default.Encode(content), actualOptions.Html);
+        Assert.Equal("a", actualOptions!.Element?.ToHtmlString());
+        Assert.Equal(content, actualOptions.Html?.ToHtmlString());
         Assert.Null(actualOptions.Text);
         Assert.Null(actualOptions.Name);
         Assert.Null(actualOptions.Type);
         Assert.Null(actualOptions.Value);
         Assert.Null(actualOptions.Disabled);
-        Assert.Equal(href, actualOptions.Href);
-        Assert.Equal(classes, actualOptions.Classes);
+        Assert.Equal(href, actualOptions.Href?.ToHtmlString());
+        Assert.Equal(classes, actualOptions.Classes?.ToHtmlString());
         Assert.NotNull(actualOptions.Attributes);
         Assert.Collection(actualOptions.Attributes, kvp =>
         {
@@ -75,6 +75,6 @@ public class ButtonLinkTagHelperTests
         });
         Assert.Null(actualOptions.PreventDoubleClick);
         Assert.Equal(isStartButton, actualOptions.IsStartButton);
-        Assert.Equal(id, actualOptions.Id);
+        Assert.Equal(id, actualOptions.Id?.ToHtmlString());
     }
 }

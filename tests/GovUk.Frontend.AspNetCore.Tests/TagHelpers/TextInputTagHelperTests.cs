@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Threading.Tasks;
 using GovUk.Frontend.AspNetCore.ComponentGeneration;
 using GovUk.Frontend.AspNetCore.TagHelpers;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -50,13 +51,13 @@ public class TextInputTagHelperTests
 
                 inputContext.SetLabel(
                     isPageHeading: false,
-                    attributes: ImmutableDictionary<string, string?>.Empty,
-                    labelHtml,
+                    attributes: new EncodedAttributesDictionary(),
+                    new HtmlString(labelHtml),
                     ShortTagNames.Label);
 
                 inputContext.SetHint(
-                    attributes: ImmutableDictionary<string, string?>.Empty,
-                    hintHtml,
+                    attributes: new EncodedAttributesDictionary(),
+                    new HtmlString(hintHtml),
                     ShortTagNames.Hint);
 
                 var tagHelperContent = new DefaultTagHelperContent();
@@ -95,19 +96,19 @@ public class TextInputTagHelperTests
 
         // Assert
         Assert.NotNull(actualOptions);
-        Assert.Equal(id, actualOptions.Id);
-        Assert.Equal(name, actualOptions.Name);
-        Assert.Equal(type, actualOptions.Type);
-        Assert.Equal(inputMode, actualOptions.Inputmode);
-        Assert.Equal(value, actualOptions.Value);
+        Assert.Equal(id, actualOptions.Id?.ToHtmlString());
+        Assert.Equal(name, actualOptions.Name?.ToHtmlString());
+        Assert.Equal(type, actualOptions.Type?.ToHtmlString());
+        Assert.Equal(inputMode, actualOptions.Inputmode?.ToHtmlString());
+        Assert.Equal(value, actualOptions.Value?.ToHtmlString());
         Assert.Equal(disabled, actualOptions.Disabled);
-        Assert.Equal(describedBy, actualOptions.DescribedBy);
-        Assert.Equal(labelHtml, actualOptions.Label?.Html);
-        Assert.Equal(hintHtml, actualOptions.Hint?.Html);
+        Assert.Equal(describedBy, actualOptions.DescribedBy?.ToHtmlString());
+        Assert.Equal(labelHtml, actualOptions.Label?.Html?.ToHtmlString());
+        Assert.Equal(hintHtml, actualOptions.Hint?.Html?.ToHtmlString());
         Assert.Null(actualOptions.ErrorMessage);
-        Assert.Equal(classes, actualOptions.Classes);
-        Assert.Equal(autocomplete, actualOptions.Autocomplete);
-        Assert.Equal(pattern, actualOptions.Pattern);
+        Assert.Equal(classes, actualOptions.Classes?.ToHtmlString());
+        Assert.Equal(autocomplete, actualOptions.Autocomplete?.ToHtmlString());
+        Assert.Equal(pattern, actualOptions.Pattern?.ToHtmlString());
         Assert.Equal(spellcheck, actualOptions.Spellcheck);
         Assert.NotNull(actualOptions.Attributes);
         Assert.Collection(actualOptions.Attributes, kvp =>
@@ -143,14 +144,14 @@ public class TextInputTagHelperTests
 
                 inputContext.SetLabel(
                     isPageHeading: false,
-                    attributes: ImmutableDictionary<string, string?>.Empty,
-                    labelHtml,
+                    new EncodedAttributesDictionary(),
+                    new HtmlString(labelHtml),
                     ShortTagNames.Label);
 
                 inputContext.SetErrorMessage(
-                    visuallyHiddenText: errorVht,
-                    attributes: ImmutableDictionary<string, string?>.Empty.Add("data-foo", errorDataFooAttribute),
-                    errorHtml,
+                    visuallyHiddenText: new HtmlString(errorVht),
+                    attributes: new EncodedAttributesDictionaryBuilder().With("data-foo", errorDataFooAttribute, encodeValue: false),
+                    new HtmlString(errorHtml),
                     ShortTagNames.ErrorMessage);
 
                 var tagHelperContent = new DefaultTagHelperContent();
@@ -175,8 +176,8 @@ public class TextInputTagHelperTests
 
         // Assert
         Assert.NotNull(actualOptions?.ErrorMessage);
-        Assert.Equal(errorHtml, actualOptions.ErrorMessage.Html);
-        Assert.Equal(errorVht, actualOptions.ErrorMessage.VisuallyHiddenText);
+        Assert.Equal(errorHtml, actualOptions.ErrorMessage.Html?.ToHtmlString());
+        Assert.Equal(errorVht, actualOptions.ErrorMessage.VisuallyHiddenText?.ToHtmlString());
         Assert.NotNull(actualOptions.ErrorMessage.Attributes);
         Assert.Collection(actualOptions.ErrorMessage.Attributes, kvp =>
         {
@@ -184,9 +185,9 @@ public class TextInputTagHelperTests
             Assert.Equal(errorDataFooAttribute, kvp.Value);
         });
         Assert.NotNull(actualOptions.Classes);
-        Assert.Contains("govuk-input--error", actualOptions.Classes.Split(' '));
+        Assert.Contains("govuk-input--error", actualOptions.Classes?.ToHtmlString().Split(' ') ?? []);
         Assert.NotNull(actualOptions.FormGroup?.Classes);
-        Assert.Contains("govuk-form-group--error", actualOptions.FormGroup.Classes.Split(' '));
+        Assert.Contains("govuk-form-group--error", actualOptions.FormGroup.Classes?.ToHtmlString().Split(' ') ?? []);
     }
 
     [Fact]
@@ -265,10 +266,10 @@ public class TextInputTagHelperTests
         Assert.NotNull(actualOptions);
         Assert.NotNull(actualOptions.Id);
         Assert.NotNull(actualOptions.Name);
-        Assert.Equal(modelStateValue, actualOptions.Value);
-        Assert.Equal(displayName, actualOptions.Label?.Html);
-        Assert.Equal(description, actualOptions.Hint?.Html);
-        Assert.Equal(modelStateError, actualOptions.ErrorMessage?.Html);
+        Assert.Equal(modelStateValue, actualOptions.Value?.ToHtmlString());
+        Assert.Equal(displayName, actualOptions.Label?.Html?.ToHtmlString());
+        Assert.Equal(description, actualOptions.Hint?.Html?.ToHtmlString());
+        Assert.Equal(modelStateError, actualOptions.ErrorMessage?.Html?.ToHtmlString());
     }
 
     [Fact]
@@ -294,8 +295,8 @@ public class TextInputTagHelperTests
 
                 inputContext.SetLabel(
                     isPageHeading: false,
-                    attributes: ImmutableDictionary<string, string?>.Empty,
-                    html: labelHtml,
+                    new EncodedAttributesDictionary(),
+                    new HtmlString(labelHtml),
                     ShortTagNames.Label);
 
                 var tagHelperContent = new DefaultTagHelperContent();
@@ -340,7 +341,7 @@ public class TextInputTagHelperTests
         await tagHelper.ProcessAsync(context, output);
 
         // Assert
-        Assert.Equal(labelHtml, actualOptions?.Label?.Html);
+        Assert.Equal(labelHtml, actualOptions?.Label?.Html?.ToHtmlString());
     }
 
     [Fact]
@@ -365,7 +366,7 @@ public class TextInputTagHelperTests
             {
                 var inputContext = context.GetContextItem<TextInputContext>();
 
-                inputContext.SetHint(attributes: ImmutableDictionary<string, string?>.Empty, hintHtml, ShortTagNames.Hint);
+                inputContext.SetHint(new EncodedAttributesDictionary(), new HtmlString(hintHtml), ShortTagNames.Hint);
 
                 var tagHelperContent = new DefaultTagHelperContent();
                 return Task.FromResult<TagHelperContent>(tagHelperContent);
@@ -413,7 +414,7 @@ public class TextInputTagHelperTests
         await tagHelper.ProcessAsync(context, output);
 
         // Assert
-        Assert.Equal(hintHtml, actualOptions?.Hint?.Html);
+        Assert.Equal(hintHtml, actualOptions?.Hint?.Html?.ToHtmlString());
     }
 
     [Fact]
@@ -440,8 +441,8 @@ public class TextInputTagHelperTests
 
                 inputContext.SetErrorMessage(
                     visuallyHiddenText: null,
-                    attributes: ImmutableDictionary<string, string?>.Empty,
-                    html: errorHtml,
+                    new EncodedAttributesDictionary(),
+                    new HtmlString(errorHtml),
                     ShortTagNames.ErrorMessage);
 
                 var tagHelperContent = new DefaultTagHelperContent();
@@ -493,7 +494,7 @@ public class TextInputTagHelperTests
         await tagHelper.ProcessAsync(context, output);
 
         // Assert
-        Assert.Equal(errorHtml, actualOptions?.ErrorMessage?.Html);
+        Assert.Equal(errorHtml, actualOptions?.ErrorMessage?.Html?.ToHtmlString());
     }
 
     [Fact]
@@ -592,8 +593,8 @@ public class TextInputTagHelperTests
 
                 inputContext.SetErrorMessage(
                     visuallyHiddenText: null,
-                    attributes: ImmutableDictionary<string, string?>.Empty,
-                    html: errorHtml,
+                    new EncodedAttributesDictionary(),
+                    new HtmlString(errorHtml),
                     ShortTagNames.ErrorMessage);
 
                 var tagHelperContent = new DefaultTagHelperContent();
@@ -646,7 +647,7 @@ public class TextInputTagHelperTests
         await tagHelper.ProcessAsync(context, output);
 
         // Assert
-        Assert.Equal(errorHtml, actualOptions?.ErrorMessage?.Html);
+        Assert.Equal(errorHtml, actualOptions?.ErrorMessage?.Html?.ToHtmlString());
     }
 
     [Fact]
@@ -678,14 +679,14 @@ public class TextInputTagHelperTests
 
                 inputContext.SetLabel(
                     isPageHeading: false,
-                    attributes: ImmutableDictionary<string, string?>.Empty,
-                    labelHtml,
+                    new EncodedAttributesDictionary(),
+                    new HtmlString(labelHtml),
                     ShortTagNames.Label);
 
                 inputContext.SetErrorMessage(
                     visuallyHiddenText: null,
-                    attributes: ImmutableDictionary<string, string?>.Empty,
-                    errorHtml,
+                    new EncodedAttributesDictionary(),
+                    new HtmlString(errorHtml),
                     ShortTagNames.ErrorMessage);
 
                 var tagHelperContent = new DefaultTagHelperContent();
@@ -713,8 +714,8 @@ public class TextInputTagHelperTests
             formErrorContext.Errors,
             error =>
             {
-                Assert.Equal(errorHtml, error.Html);
-                Assert.Equal($"#{id}", error.Href);
+                Assert.Equal(errorHtml, error.Html?.ToHtmlString());
+                Assert.Equal($"#{id}", error.Href?.ToHtmlString());
             });
     }
 

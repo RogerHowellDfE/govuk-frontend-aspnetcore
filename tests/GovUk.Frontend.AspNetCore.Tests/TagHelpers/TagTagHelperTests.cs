@@ -43,6 +43,6 @@ public class TagTagHelperTests
 
         // Assert
         Assert.NotNull(actualOptions);
-        Assert.Equal(html, actualOptions!.Html);
+        Assert.Equal(html, actualOptions!.Html?.ToHtmlString());
     }
 }

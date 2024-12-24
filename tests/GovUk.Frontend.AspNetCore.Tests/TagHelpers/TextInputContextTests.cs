@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Immutable;
+using GovUk.Frontend.AspNetCore.ComponentGeneration;
 using GovUk.Frontend.AspNetCore.TagHelpers;
+using Microsoft.AspNetCore.Html;
 using Xunit;
 
 namespace GovUk.Frontend.AspNetCore.Tests.TagHelpers;
@@ -14,10 +16,10 @@ public class TextInputContextTests
         var context = new TextInputContext();
         var prefixTagName = ShortTagNames.Prefix;
         var errorMessageTagName = ShortTagNames.ErrorMessage;
-        context.SetPrefix(attributes: ImmutableDictionary<string, string?>.Empty, html: "Prefix", prefixTagName);
+        context.SetPrefix(new EncodedAttributesDictionary(), new HtmlString("Prefix"), prefixTagName);
 
         // Act
-        var ex = Record.Exception(() => context.SetErrorMessage(null, ImmutableDictionary<string, string?>.Empty, "Error", errorMessageTagName));
+        var ex = Record.Exception(() => context.SetErrorMessage(null, new EncodedAttributesDictionary(), new HtmlString("Error"), errorMessageTagName));
 
         // Assert
         Assert.IsType<InvalidOperationException>(ex);
@@ -31,10 +33,10 @@ public class TextInputContextTests
         var context = new TextInputContext();
         var suffixTagName = ShortTagNames.Suffix;
         var errorMessageTagName = ShortTagNames.ErrorMessage;
-        context.SetSuffix(attributes: ImmutableDictionary<string, string?>.Empty, html: "Prefix", suffixTagName);
+        context.SetSuffix(new EncodedAttributesDictionary(), new HtmlString("Prefix"), suffixTagName);
 
         // Act
-        var ex = Record.Exception(() => context.SetErrorMessage(null, ImmutableDictionary<string, string?>.Empty, "Error", errorMessageTagName));
+        var ex = Record.Exception(() => context.SetErrorMessage(null, new EncodedAttributesDictionary(), new HtmlString("Error"), errorMessageTagName));
 
         // Assert
         Assert.IsType<InvalidOperationException>(ex);
@@ -48,10 +50,10 @@ public class TextInputContextTests
         var context = new TextInputContext();
         var prefixTagName = ShortTagNames.Prefix;
         var hintTagName = ShortTagNames.Hint;
-        context.SetPrefix(attributes: ImmutableDictionary<string, string?>.Empty, html: "Prefix", prefixTagName);
+        context.SetPrefix(new EncodedAttributesDictionary(), new HtmlString("Prefix"), prefixTagName);
 
         // Act
-        var ex = Record.Exception(() => context.SetHint(ImmutableDictionary<string, string?>.Empty, "Error", hintTagName));
+        var ex = Record.Exception(() => context.SetHint(new EncodedAttributesDictionary(), new HtmlString("Error"), hintTagName));
 
         // Assert
         Assert.IsType<InvalidOperationException>(ex);
@@ -65,10 +67,10 @@ public class TextInputContextTests
         var context = new TextInputContext();
         var suffixTagName = ShortTagNames.Suffix;
         var hintTagName = ShortTagNames.ErrorMessage;
-        context.SetSuffix(attributes: ImmutableDictionary<string, string?>.Empty, html: "Prefix", suffixTagName);
+        context.SetSuffix(new EncodedAttributesDictionary(), new HtmlString("Prefix"), suffixTagName);
 
         // Act
-        var ex = Record.Exception(() => context.SetHint(ImmutableDictionary<string, string?>.Empty, "Error", hintTagName));
+        var ex = Record.Exception(() => context.SetHint(new EncodedAttributesDictionary(), new HtmlString("Error"), hintTagName));
 
         // Assert
         Assert.IsType<InvalidOperationException>(ex);
@@ -82,10 +84,10 @@ public class TextInputContextTests
         var context = new TextInputContext();
         var prefixTagName = ShortTagNames.Prefix;
         var labelTagName = ShortTagNames.Label;
-        context.SetPrefix(attributes: ImmutableDictionary<string, string?>.Empty, html: "Prefix", prefixTagName);
+        context.SetPrefix(new EncodedAttributesDictionary(), new HtmlString("Prefix"), prefixTagName);
 
         // Act
-        var ex = Record.Exception(() => context.SetLabel(false, ImmutableDictionary<string, string?>.Empty, "Error", labelTagName));
+        var ex = Record.Exception(() => context.SetLabel(false, new EncodedAttributesDictionary(), new HtmlString("Error"), labelTagName));
 
         // Assert
         Assert.IsType<InvalidOperationException>(ex);
@@ -99,10 +101,10 @@ public class TextInputContextTests
         var context = new TextInputContext();
         var suffixTagName = ShortTagNames.Suffix;
         var labelTagName = ShortTagNames.Label;
-        context.SetSuffix(attributes: ImmutableDictionary<string, string?>.Empty, html: "Prefix", suffixTagName);
+        context.SetSuffix(new EncodedAttributesDictionary(), new HtmlString("Prefix"), suffixTagName);
 
         // Act
-        var ex = Record.Exception(() => context.SetLabel(false, ImmutableDictionary<string, string?>.Empty, "Error", labelTagName));
+        var ex = Record.Exception(() => context.SetLabel(false, new EncodedAttributesDictionary(), new HtmlString("Error"), labelTagName));
 
         // Assert
         Assert.IsType<InvalidOperationException>(ex);
@@ -115,10 +117,10 @@ public class TextInputContextTests
         // Arrange
         var context = new TextInputContext();
         var prefixTagName = ShortTagNames.Prefix;
-        context.SetPrefix(attributes: ImmutableDictionary<string, string?>.Empty, html: "Existing prefix", prefixTagName);
+        context.SetPrefix(new EncodedAttributesDictionary(), new HtmlString("Existing prefix"), prefixTagName);
 
         // Act
-        var ex = Record.Exception(() => context.SetPrefix(ImmutableDictionary<string, string?>.Empty, "Prefix", prefixTagName));
+        var ex = Record.Exception(() => context.SetPrefix(new EncodedAttributesDictionary(), new HtmlString("Prefix"), prefixTagName));
 
         // Assert
         Assert.IsType<InvalidOperationException>(ex);
@@ -132,10 +134,10 @@ public class TextInputContextTests
         var context = new TextInputContext();
         var prefixTagName = ShortTagNames.Prefix;
         var suffixTagName = ShortTagNames.Suffix;
-        context.SetSuffix(attributes: ImmutableDictionary<string, string?>.Empty, html: "Suffix", suffixTagName);
+        context.SetSuffix(new EncodedAttributesDictionary(), new HtmlString("Suffix"), suffixTagName);
 
         // Act
-        var ex = Record.Exception(() => context.SetPrefix(ImmutableDictionary<string, string?>.Empty, "Prefix", prefixTagName));
+        var ex = Record.Exception(() => context.SetPrefix(new EncodedAttributesDictionary(), new HtmlString("Prefix"), prefixTagName));
 
         // Assert
         Assert.IsType<InvalidOperationException>(ex);
@@ -148,10 +150,10 @@ public class TextInputContextTests
         // Arrange
         var context = new TextInputContext();
         var suffixTagName = ShortTagNames.Suffix;
-        context.SetSuffix(attributes: ImmutableDictionary<string, string?>.Empty, html: "Existing prefix", suffixTagName);
+        context.SetSuffix(new EncodedAttributesDictionary(), new HtmlString("Existing prefix"), suffixTagName);
 
         // Act
-        var ex = Record.Exception(() => context.SetSuffix(ImmutableDictionary<string, string?>.Empty, "Prefix", suffixTagName));
+        var ex = Record.Exception(() => context.SetSuffix(new EncodedAttributesDictionary(), new HtmlString("Prefix"), suffixTagName));
 
         // Assert
         Assert.IsType<InvalidOperationException>(ex);

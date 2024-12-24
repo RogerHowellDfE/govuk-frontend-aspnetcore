@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using GovUk.Frontend.AspNetCore.ComponentGeneration;
 using GovUk.Frontend.AspNetCore.TagHelpers;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.Extensions.Options;
@@ -22,10 +23,10 @@ public class ContainerErrorSummaryTagHelperTests
         });
 
         var disableAutoFocus = true;
-        var errors = new (string Html, string? Href)[]
+        var errors = new (IHtmlContent Html, IHtmlContent? Href)[]
         {
-            ("First error", "#Field1"),
-            ("Second error", "#Field2"),
+            (new HtmlString("First error"), new HtmlString("#Field1")),
+            (new HtmlString("Second error"), new HtmlString("#Field2")),
         };
 
         var context = new TagHelperContext(

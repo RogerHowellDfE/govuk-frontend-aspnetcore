@@ -42,7 +42,7 @@ public class HintTagHelperTests
         await tagHelper.ProcessAsync(context, output);
 
         // Assert
-        Assert.Equal(HtmlEncoder.Default.Encode(hint), formGroupContext.Hint?.Html);
+        Assert.Equal(hint, formGroupContext.Hint?.Html?.ToHtmlString());
     }
 
     private class TestFormGroupContext : FormGroupContext2

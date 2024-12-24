@@ -64,8 +64,8 @@ public class ErrorSummaryTagHelper : TagHelper
         var title = errorSummaryContext.GetTitle();
         var description = errorSummaryContext.GetDescription();
 
-        var attributes = output.Attributes.ToEncodedAttributeDictionary()
-            .Remove("class", out var classes);
+        var attributes = new EncodedAttributesDictionary(output.Attributes);
+        attributes.Remove("class", out var classes);
 
         var component = _componentGenerator.GenerateErrorSummary(new ErrorSummaryOptions()
         {
@@ -81,6 +81,6 @@ public class ErrorSummaryTagHelper : TagHelper
             DescriptionAttributes = description?.Attributes
         });
 
-        output.WriteComponent(component);
+        component.WriteTo(output);
     }
 }

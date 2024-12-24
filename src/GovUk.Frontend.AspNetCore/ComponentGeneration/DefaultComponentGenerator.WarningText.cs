@@ -1,5 +1,5 @@
 using System;
-using HtmlTags;
+using Microsoft.AspNetCore.Html;
 
 namespace GovUk.Frontend.AspNetCore.ComponentGeneration;
 
@@ -8,24 +8,24 @@ public partial class DefaultComponentGenerator
     internal const string WarningTextElement = "div";
 
     /// <inheritdoc/>
-    public virtual HtmlTag GenerateWarningText(WarningTextOptions options)
+    public virtual HtmlTagBuilder GenerateWarningText(WarningTextOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
         options.Validate();
 
-        return new HtmlTag(WarningTextElement)
-            .AddClass("govuk-warning-text")
-            .AddClasses(ExplodeClasses(options.Classes))
-            .MergeEncodedAttributes(options.Attributes)
-            .Append(new HtmlTag("span")
-                .AddClass("govuk-warning-text__icon")
-                .UnencodedAttr("aria-hidden", "true")
-                .AppendText("!"))
-            .Append(new HtmlTag("strong")
-                .AddClass("govuk-warning-text__text")
-                .Append(new HtmlTag("span")
-                    .AddClass("govuk-visually-hidden")
-                    .AppendText(options.IconFallbackText.NormalizeEmptyString() ?? "Warning"))
-                .AppendHtml(GetEncodedTextOrHtml(options.Text, options.Html) ?? string.Empty));
+        return new HtmlTagBuilder(WarningTextElement)
+            .WithCssClass("govuk-warning-text")
+            .WithCssClasses(ExplodeClasses(options.Classes?.ToHtmlString()))
+            .WithAttributes(options.Attributes)
+            .WithAppendedHtml(new HtmlTagBuilder("span")
+                .WithCssClass("govuk-warning-text__icon")
+                .WithAttribute("aria-hidden", "true", encodeValue: false)
+                .WithAppendedText("!"))
+            .WithAppendedHtml(new HtmlTagBuilder("strong")
+                .WithCssClass("govuk-warning-text__text")
+                .WithAppendedHtml(new HtmlTagBuilder("span")
+                    .WithCssClass("govuk-visually-hidden")
+                    .WithAppendedHtml(options.IconFallbackText.NormalizeEmptyString() ?? new HtmlString("Warning")))
+                .WithAppendedHtml(GetEncodedTextOrHtml(options.Text, options.Html) ?? new HtmlString("")));
     }
 }

@@ -1,5 +1,3 @@
-using HtmlTags;
-
 namespace GovUk.Frontend.AspNetCore.ComponentGeneration;
 
 /// <summary>
@@ -10,102 +8,102 @@ public interface IComponentGenerator
     /// <summary>
     /// Generates an accordion component.
     /// </summary>
-    /// <returns>An <see cref="HtmlTag"/> with the component's HTML.</returns>
+    /// <returns>An <see cref="HtmlTagBuilder"/> with the component's HTML.</returns>
     HtmlTagBuilder GenerateAccordion(AccordionOptions options);
 
     /// <summary>
     /// Generates a back link component.
     /// </summary>
-    /// <returns>An <see cref="HtmlTag"/> with the component's HTML.</returns>
+    /// <returns>An <see cref="HtmlTagBuilder"/> with the component's HTML.</returns>
     HtmlTagBuilder GenerateBackLink(BackLinkOptions options);
 
     /// <summary>
     /// Generates a button component.
     /// </summary>
-    /// <returns>An <see cref="HtmlTag"/> with the component's HTML.</returns>
-    HtmlTag GenerateButton(ButtonOptions options);
+    /// <returns>An <see cref="HtmlTagBuilder"/> with the component's HTML.</returns>
+    HtmlTagBuilder GenerateButton(ButtonOptions options);
 
     /// <summary>
     /// Generates a cookie banner component.
     /// </summary>
-    /// <returns>An <see cref="HtmlTag"/> with the component's HTML.</returns>
-    HtmlTag GenerateCookieBanner(CookieBannerOptions options);
+    /// <returns>An <see cref="HtmlTagBuilder"/> with the component's HTML.</returns>
+    HtmlTagBuilder GenerateCookieBanner(CookieBannerOptions options);
 
     /// <summary>
     /// Generates a details component.
     /// </summary>
-    /// <returns>An <see cref="HtmlTag"/> with the component's HTML.</returns>
+    /// <returns>An <see cref="HtmlTagBuilder"/> with the component's HTML.</returns>
     HtmlTagBuilder GenerateDetails(DetailsOptions options);
 
     /// <summary>
     /// Generates an error message component.
     /// </summary>
-    /// <returns>An <see cref="HtmlTag"/> with the component's HTML.</returns>
-    HtmlTag GenerateErrorMessage(ErrorMessageOptions options);
+    /// <returns>An <see cref="HtmlTagBuilder"/> with the component's HTML.</returns>
+    HtmlTagBuilder GenerateErrorMessage(ErrorMessageOptions options);
 
     /// <summary>
     /// Generates an error summary component.
     /// </summary>
-    /// <returns>An <see cref="HtmlTag"/> with the component's HTML.</returns>
-    HtmlTag GenerateErrorSummary(ErrorSummaryOptions options);
+    /// <returns>An <see cref="HtmlTagBuilder"/> with the component's HTML.</returns>
+    HtmlTagBuilder GenerateErrorSummary(ErrorSummaryOptions options);
 
     /// <summary>
     /// Generates an exit this pagecomponent.
     /// </summary>
-    /// <returns>An <see cref="HtmlTag"/> with the component's HTML.</returns>
-    HtmlTag GenerateExitThisPage(ExitThisPageOptions options);
+    /// <returns>An <see cref="HtmlTagBuilder"/> with the component's HTML.</returns>
+    HtmlTagBuilder GenerateExitThisPage(ExitThisPageOptions options);
 
     /// <summary>
     /// Generates a fieldset component.
     /// </summary>
-    /// <returns>An <see cref="HtmlTag"/> with the component's HTML.</returns>
-    HtmlTag GenerateFieldset(FieldsetOptions options);
+    /// <returns>An <see cref="HtmlTagBuilder"/> with the component's HTML.</returns>
+    HtmlTagBuilder GenerateFieldset(FieldsetOptions options);
 
     /// <summary>
     /// Generates a hint component.
     /// </summary>
-    /// <returns>An <see cref="HtmlTag"/> with the component's HTML.</returns>
-    HtmlTag GenerateHint(HintOptions options);
+    /// <returns>An <see cref="HtmlTagBuilder"/> with the component's HTML.</returns>
+    HtmlTagBuilder GenerateHint(HintOptions options);
 
     /// <summary>
     /// Generates an inset text component.
     /// </summary>
-    /// <returns>An <see cref="HtmlTag"/> with the component's HTML.</returns>
-    HtmlTag GenerateInsetText(InsetTextOptions options);
+    /// <returns>An <see cref="HtmlTagBuilder"/> with the component's HTML.</returns>
+    HtmlTagBuilder GenerateInsetText(InsetTextOptions options);
 
     /// <summary>
     /// Generates a label component.
     /// </summary>
-    /// <returns>An <see cref="HtmlTag"/> with the component's HTML.</returns>
-    HtmlTag GenerateLabel(LabelOptions options);
+    /// <returns>An <see cref="HtmlTagBuilder"/> with the component's HTML.</returns>
+    HtmlTagBuilder GenerateLabel(LabelOptions options);
 
     /// <summary>
     /// Generates a phase banner component.
     /// </summary>
-    /// <returns>An <see cref="HtmlTag"/> with the component's HTML.</returns>
-    HtmlTag GeneratePhaseBanner(PhaseBannerOptions options);
+    /// <returns>An <see cref="HtmlTagBuilder"/> with the component's HTML.</returns>
+    HtmlTagBuilder GeneratePhaseBanner(PhaseBannerOptions options);
 
     /// <summary>
     /// Generates a tag component.
     /// </summary>
-    /// <returns>An <see cref="HtmlTag"/> with the component's HTML.</returns>
-    HtmlTag GenerateTag(TagOptions options);
+    /// <returns>An <see cref="HtmlTagBuilder"/> with the component's HTML.</returns>
+    HtmlTagBuilder GenerateTag(TagOptions options);
 
     /// <summary>
     /// Generates a task list component.
     /// </summary>
-    /// <returns>An <see cref="HtmlTag"/> with the component's HTML.</returns>
-    HtmlTag GenerateTaskList(TaskListOptions options);
+    /// <returns>An <see cref="HtmlTagBuilder"/> with the component's HTML.</returns>
+    HtmlTagBuilder GenerateTaskList(TaskListOptions options);
 
     /// <summary>
     /// Generates a text input component.
     /// </summary>
-    /// <returns>An <see cref="HtmlTag"/> with the component's HTML.</returns>
-    HtmlTag GenerateTextInput(TextInputOptions options);
+    /// <returns>An <see cref="HtmlTagBuilder"/> with the component's HTML.</returns>
+    HtmlTagBuilder GenerateTextInput(TextInputOptions options);
 
     /// <summary>
     /// Generates a warning text component.
     /// </summary>
-    /// <returns>An <see cref="HtmlTag"/> with the component's HTML.</returns>
-    HtmlTag GenerateWarningText(WarningTextOptions options);
+    /// <returns>An <see cref="HtmlTagBuilder"/> with the component's HTML.</returns>
+    HtmlTagBuilder GenerateWarningText(WarningTextOptions options);
 }

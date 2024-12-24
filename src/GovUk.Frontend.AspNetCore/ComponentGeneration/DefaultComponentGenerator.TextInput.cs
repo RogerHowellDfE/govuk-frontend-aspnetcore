@@ -1,6 +1,6 @@
 using System;
 using System.Diagnostics;
-using HtmlTags;
+using Microsoft.AspNetCore.Html;
 
 namespace GovUk.Frontend.AspNetCore.ComponentGeneration;
 
@@ -13,20 +13,20 @@ public partial class DefaultComponentGenerator
     internal const string InputSuffixElement = "div";
 
     /// <inheritdoc/>
-    public virtual HtmlTag GenerateTextInput(TextInputOptions options)
+    public virtual HtmlTagBuilder GenerateTextInput(TextInputOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
         options.Validate();
 
         var hasError = options.ErrorMessage is not null;
         var hasPrefixOrSuffix = options.Prefix is not null || options.Suffix is not null;
-        var describedBy = options.DescribedBy ?? "";
+        var describedBy = options.DescribedBy ?? new HtmlString("");
 
         var formGroup = GenerateFormGroup(options.FormGroup, hasError);
 
         if (options.Label is not null)
         {
-            formGroup.Append(GenerateLabel(new LabelOptions()
+            formGroup.WithAppendedHtml(GenerateLabel(new LabelOptions()
             {
                 Html = options.Label.Html,
                 Text = options.Label.Text,
@@ -39,10 +39,10 @@ public partial class DefaultComponentGenerator
 
         if (options.Hint is not null)
         {
-            var hintId = $"{options.Id}-hint";
+            var hintId = new HtmlString($"{options.Id}-hint");
             AppendToDescribedBy(ref describedBy, hintId);
 
-            formGroup.Append(GenerateHint(new HintOptions()
+            formGroup.WithAppendedHtml(GenerateHint(new HintOptions()
             {
                 Id = hintId,
                 Classes = options.Hint.Classes,
@@ -56,10 +56,10 @@ public partial class DefaultComponentGenerator
         {
             Debug.Assert(hasError);
 
-            var errorId = $"{options.Id}-error";
+            var errorId = new HtmlString($"{options.Id}-error");
             AppendToDescribedBy(ref describedBy, errorId);
 
-            formGroup.Append(GenerateErrorMessage(new ErrorMessageOptions()
+            formGroup.WithAppendedHtml(GenerateErrorMessage(new ErrorMessageOptions()
             {
                 Id = errorId,
                 Classes = options.ErrorMessage.Classes,
@@ -71,48 +71,48 @@ public partial class DefaultComponentGenerator
         }
 
         var wrapper = hasPrefixOrSuffix ?
-            new HtmlTag("div").AddClass("govuk-input__wrapper") :
+            new HtmlTagBuilder("div").WithCssClass("govuk-input__wrapper") :
             null;
 
         if (options.Prefix is not null)
         {
-            wrapper!.Append(new HtmlTag(InputPrefixElement)
-                .AddClass("govuk-input__prefix")
-                .AddClasses(ExplodeClasses(options.Prefix.Classes))
-                .UnencodedAttr("aria-hidden", "true")
-                .MergeEncodedAttributes(options.Prefix.Attributes)
-                .AppendHtml(GetEncodedTextOrHtml(options.Prefix.Text, options.Prefix.Html)));
+            wrapper!.WithAppendedHtml(new HtmlTagBuilder(InputPrefixElement)
+                .WithCssClass("govuk-input__prefix")
+                .WithCssClasses(ExplodeClasses(options.Prefix.Classes?.ToHtmlString()))
+                .WithAttribute("aria-hidden", "true", encodeValue: false)
+                .WithAttributes(options.Prefix.Attributes)
+                .WithAppendedHtml(GetEncodedTextOrHtml(options.Prefix.Text, options.Prefix.Html)!));
         }
 
-        var input = new HtmlTag(InputElement)
-            .AddClass("govuk-input")
-            .AddClasses(ExplodeClasses(options.Classes))
-            .AddClassIf(hasError, "govuk-input--error")
-            .UnencodedAttr("id", options.Id)
-            .UnencodedAttr("name", options.Name)
-            .UnencodedAttr("type", options.Type ?? InputDefaultType)
-            .AddEncodedAttributeIf(options.Spellcheck.HasValue, "spellcheck", options.Spellcheck == true ? "true" : "false")
-            .AddEncodedAttributeIfNotNull("value", options.Value.NormalizeEmptyString())
-            .AddEncodedAttributeIf(options.Disabled == true, "disabled", string.Empty)
-            .AddEncodedAttributeIfNotNull("aria-describedby", describedBy.NormalizeEmptyString())
-            .AddEncodedAttributeIfNotNull("autocomplete", options.Autocomplete.NormalizeEmptyString())
-            .AddEncodedAttributeIfNotNull("pattern", options.Pattern.NormalizeEmptyString())
-            .AddEncodedAttributeIfNotNull("inputmode", options.Inputmode.NormalizeEmptyString())
-            .MergeEncodedAttributes(options.Attributes);
+        var input = new HtmlTagBuilder(InputElement)
+            .WithCssClass("govuk-input")
+            .WithCssClasses(ExplodeClasses(options.Classes?.ToHtmlString()))
+            .When(hasError, b => b.WithCssClass("govuk-input--error"))
+            .WithAttribute("id", options.Id!)
+            .WithAttribute("name", options.Name!)
+            .WithAttribute("type", options.Type ?? new HtmlString(InputDefaultType))
+            .WhenNotNull(options.Spellcheck, (s, b) => b.WithAttribute("spellcheck", s == true ? "true" : "false", encodeValue: false))
+            .WithAttributeWhenNotNull(options.Value.NormalizeEmptyString(), "value")
+            .When(options.Disabled == true, b => b.WithBooleanAttribute("disabled"))
+            .WithAttributeWhenNotNull(describedBy.NormalizeEmptyString(), "aria-describedby")
+            .WithAttributeWhenNotNull(options.Autocomplete.NormalizeEmptyString(), "autocomplete")
+            .WithAttributeWhenNotNull(options.Pattern.NormalizeEmptyString(), "pattern")
+            .WithAttributeWhenNotNull(options.Inputmode.NormalizeEmptyString(), "inputmode")
+            .WithAttributes(options.Attributes);
 
-        wrapper?.Append(input);
+        wrapper?.WithAppendedHtml(input);
 
         if (options.Suffix is not null)
         {
-            wrapper!.Append(new HtmlTag(InputSuffixElement)
-                .AddClass("govuk-input__suffix")
-                .AddClasses(ExplodeClasses(options.Suffix.Classes))
-                .UnencodedAttr("aria-hidden", "true")
-                .MergeEncodedAttributes(options.Suffix.Attributes)
-                .AppendHtml(GetEncodedTextOrHtml(options.Suffix.Text, options.Suffix.Html)));
+            wrapper!.WithAppendedHtml(new HtmlTagBuilder(InputSuffixElement)
+                .WithCssClass("govuk-input__suffix")
+                .WithCssClasses(ExplodeClasses(options.Suffix.Classes?.ToHtmlString()))
+                .WithAttribute("aria-hidden", "true", encodeValue: false)
+                .WithAttributes(options.Suffix.Attributes)
+                .WithAppendedHtml(GetEncodedTextOrHtml(options.Suffix.Text, options.Suffix.Html)!));
         }
 
-        formGroup.Append(wrapper ?? input);
+        formGroup.WithAppendedHtml(wrapper ?? input);
 
         return formGroup;
     }

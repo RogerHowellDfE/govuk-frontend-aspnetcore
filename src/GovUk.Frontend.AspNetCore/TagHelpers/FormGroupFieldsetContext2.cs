@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Immutable;
 using GovUk.Frontend.AspNetCore.ComponentGeneration;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace GovUk.Frontend.AspNetCore.TagHelpers;
 
 internal abstract class FormGroupFieldsetContext2
 {
-    internal record LegendInfo(bool IsPageHeading, ImmutableDictionary<string, string?> Attributes, string? Html);
+    internal record LegendInfo(bool IsPageHeading, EncodedAttributesDictionary Attributes, IHtmlContent? Html);
 
     private readonly string _fieldsetTagName;
     private readonly string _legendTagName;
@@ -17,12 +18,12 @@ internal abstract class FormGroupFieldsetContext2
     internal LegendInfo? Legend;
     internal string? DescribedBy;
 
-    private ImmutableDictionary<string, string?> _attributes;
+    private EncodedAttributesDictionary _attributes;
 
     protected FormGroupFieldsetContext2(
         string fieldsetTagName,
         string legendTagName,
-        ImmutableDictionary<string, string?> attributes,
+        EncodedAttributesDictionary attributes,
         ModelExpression? @for,
         string? describedBy)
     {
@@ -41,28 +42,27 @@ internal abstract class FormGroupFieldsetContext2
         ThrowIfNotComplete();
 
         var legendHtml = Legend?.Html ??
-            modelHelper.GetDisplayName(_for!.ModelExplorer, _for.Name);
+            new HtmlString(modelHelper.GetDisplayName(_for!.ModelExplorer, _for.Name));
 
         return new FieldsetOptions()
         {
-            DescribedBy = DescribedBy,
+            DescribedBy = DescribedBy.ToHtmlContent(),
             Legend = new FieldsetOptionsLegend()
             {
                 Text = null,
                 Html = legendHtml,
                 IsPageHeading = Legend?.IsPageHeading,
-                Attributes = (Legend?.Attributes ?? ImmutableDictionary<string, string?>.Empty).Remove("class", out var legendClasses),
+                Attributes = new EncodedAttributesDictionaryBuilder(Legend?.Attributes.Clone() ?? new()).Without("class", out var legendClasses),
                 Classes = legendClasses
             },
             Role = null,
-            Text = null,
             Html = null,
-            Attributes = _attributes.Remove("class", out var classes),
+            Attributes = new EncodedAttributesDictionaryBuilder(_attributes).Without("class", out var classes),
             Classes = classes
         };
     }
 
-    public virtual void SetLegend(bool isPageHeading, ImmutableDictionary<string, string?> attributes, string? html)
+    public virtual void SetLegend(bool isPageHeading, EncodedAttributesDictionary attributes, IHtmlContent? html)
     {
         if (Legend != null)
         {

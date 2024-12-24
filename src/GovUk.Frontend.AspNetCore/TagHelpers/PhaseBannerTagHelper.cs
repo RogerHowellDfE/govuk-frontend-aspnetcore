@@ -33,7 +33,7 @@ public class PhaseBannerTagHelper : TagHelper
 
         using (context.SetScopedContextItem(phaseBannerContext))
         {
-            childContent = await output.GetChildContentAsync();
+            childContent = (await output.GetChildContentAsync()).Snapshot();
         }
 
         if (output.Content.IsModified)
@@ -41,20 +41,20 @@ public class PhaseBannerTagHelper : TagHelper
             childContent = output.Content;
         }
 
-        var attributes = output.Attributes.ToEncodedAttributeDictionary()
-            .Remove("class", out var classes);
+        var attributes = new EncodedAttributesDictionary(output.Attributes);
+        attributes.Remove("class", out var classes);
 
         var tagOptions = phaseBannerContext.GetTagOptions();
 
         var component = _componentGenerator.GeneratePhaseBanner(new PhaseBannerOptions()
         {
             Text = null,
-            Html = childContent.ToHtmlString(),
+            Html = childContent,
             Tag = tagOptions,
             Classes = classes,
             Attributes = attributes
         });
 
-        output.WriteComponent(component);
+        component.WriteTo(output);
     }
 }

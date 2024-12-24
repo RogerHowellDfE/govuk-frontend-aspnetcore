@@ -162,10 +162,10 @@ public class ErrorSummaryItemTagHelper : TagHelper
         }
 
         errorSummaryContext.AddItem(
-            resolvedHref,
-            itemContent.ToHtmlString(),
-            attributes: LinkAttributes?.ToImmutableDictionary() ?? ImmutableDictionary<string, string?>.Empty,
-            itemAttributes: output.Attributes.ToEncodedAttributeDictionary());
+            resolvedHref is not null ? new HtmlString(resolvedHref) : null,
+            itemContent,
+            attributes: EncodedAttributesDictionary.FromDictionaryWithEncodedValues(LinkAttributes),
+            itemAttributes: new EncodedAttributesDictionary(output.Attributes));
 
         output.SuppressOutput();
 

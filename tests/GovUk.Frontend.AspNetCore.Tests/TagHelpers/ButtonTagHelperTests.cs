@@ -66,15 +66,15 @@ public class ButtonTagHelperTests
 
         // Assert
         Assert.NotNull(actualOptions);
-        Assert.Equal("button", actualOptions!.Element);
-        Assert.Equal(HtmlEncoder.Default.Encode(content), actualOptions.Html);
+        Assert.Equal("button", actualOptions!.Element?.ToHtmlString());
+        Assert.Equal(HtmlEncoder.Default.Encode(content), actualOptions.Html?.ToHtmlString());
         Assert.Null(actualOptions.Text);
-        Assert.Equal(name, actualOptions.Name);
-        Assert.Equal(type, actualOptions.Type);
-        Assert.Equal(value, actualOptions.Value);
+        Assert.Equal(name, actualOptions.Name?.ToHtmlString());
+        Assert.Equal(type, actualOptions.Type?.ToHtmlString());
+        Assert.Equal(value, actualOptions.Value?.ToHtmlString());
         Assert.Equal(disabled, actualOptions.Disabled);
         Assert.Null(actualOptions.Href);
-        Assert.Equal(classes, actualOptions.Classes);
+        Assert.Equal(classes, actualOptions.Classes?.ToHtmlString());
         Assert.NotNull(actualOptions.Attributes);
         Assert.Collection(actualOptions.Attributes, kvp =>
         {
@@ -83,6 +83,6 @@ public class ButtonTagHelperTests
         });
         Assert.Equal(preventDoubleClick, actualOptions.PreventDoubleClick);
         Assert.Equal(isStartButton, actualOptions.IsStartButton);
-        Assert.Equal(id, actualOptions.Id);
+        Assert.Equal(id, actualOptions.Id?.ToHtmlString());
     }
 }

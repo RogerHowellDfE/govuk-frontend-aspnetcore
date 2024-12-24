@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Web;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
@@ -55,16 +54,21 @@ public class EncodedAttributesDictionary : IReadOnlyDictionary<string, string>
     string IReadOnlyDictionary<string, string>.this[string key] => throw new NotImplementedException();
 
     /// <summary>
-    /// Creates an <see cref="EncodedAttributesDictionary"/> from a <see cref="IReadOnlyDictionary{TKey, TValue}"/>.
+    /// Creates an <see cref="EncodedAttributesDictionary"/> from a <see cref="IDictionary{TKey, TValue}"/>.
     /// </summary>
     /// <remarks>
     /// Values must be HTML encoded.
     /// </remarks>
-    /// <param name="dictionary">The <see cref="IReadOnlyDictionary{TKey, TValue}"/> to copy attributes from.</param>
+    /// <param name="dictionary">The <see cref="IDictionary{TKey, TValue}"/> to copy attributes from.</param>
     /// <returns>A new <see cref="EncodedAttributesDictionary"/>.</returns>
-    public static EncodedAttributesDictionary FromDictionaryWithEncodedValues(IReadOnlyDictionary<string, string> dictionary) =>
-        new EncodedAttributesDictionary(
-            new TagHelperAttributeList(dictionary.Select(kvp => new TagHelperAttribute(kvp.Key, new HtmlString(kvp.Value)))));
+    public static EncodedAttributesDictionary FromDictionaryWithEncodedValues(IDictionary<string, string?>? dictionary) =>
+        dictionary is not null ?
+            new EncodedAttributesDictionary(
+                new TagHelperAttributeList(dictionary.Select(kvp =>
+                    kvp.Value is not null ?
+                        new TagHelperAttribute(kvp.Key, new HtmlString(kvp.Value)) :
+                        new TagHelperAttribute(kvp.Key)))) :
+            new();
 
     /// <summary>
     /// Creates a copy of this <see cref="EncodedAttributesDictionary"/>.

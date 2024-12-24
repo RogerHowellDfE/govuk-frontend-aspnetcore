@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using GovUk.Frontend.AspNetCore.ComponentGeneration;
 using Microsoft.AspNetCore.Html;

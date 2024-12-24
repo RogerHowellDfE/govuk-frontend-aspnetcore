@@ -47,8 +47,8 @@ public class ErrorMessageTagHelperTests
 
         // Assert
         Assert.NotNull(formGroupContext.ErrorMessage);
-        Assert.Equal(HtmlEncoder.Default.Encode(errorMessage), formGroupContext.ErrorMessage.Html);
-        Assert.Equal(vht, formGroupContext.ErrorMessage.VisuallyHiddenText);
+        Assert.Equal(errorMessage, formGroupContext.ErrorMessage.Html?.ToHtmlString());
+        Assert.Equal(vht, formGroupContext.ErrorMessage.VisuallyHiddenText?.ToHtmlString());
     }
 
     private class TestFormGroupContext : FormGroupContext2

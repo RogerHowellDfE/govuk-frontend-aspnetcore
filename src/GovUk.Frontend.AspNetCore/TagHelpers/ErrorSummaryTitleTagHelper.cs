@@ -18,14 +18,14 @@ public class ErrorSummaryTitleTagHelper : TagHelper
     {
         var errorSummaryContext = context.GetContextItem<ErrorSummaryContext>();
 
-        var childContent = await output.GetChildContentAsync();
+        var childContent = (await output.GetChildContentAsync()).Snapshot();
 
         if (output.Content.IsModified)
         {
             childContent = output.Content;
         }
 
-        errorSummaryContext.SetTitle(output.Attributes.ToEncodedAttributeDictionary(), childContent.ToHtmlString());
+        errorSummaryContext.SetTitle(new EncodedAttributesDictionary(output.Attributes), childContent);
 
         output.SuppressOutput();
     }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Html;
 
 namespace GovUk.Frontend.AspNetCore.ComponentGeneration;
 
@@ -7,9 +8,9 @@ namespace GovUk.Frontend.AspNetCore.ComponentGeneration;
 public record TaskListOptions
 {
     public IReadOnlyCollection<TaskListOptionsItem>? Items { get; set; }
-    public string? Classes { get; set; }
-    public IReadOnlyDictionary<string, string?>? Attributes { get; set; }
-    public string? IdPrefix { get; set; }
+    public IHtmlContent? Classes { get; set; }
+    public EncodedAttributesDictionary? Attributes { get; set; }
+    public IHtmlContent? IdPrefix { get; set; }
 
     internal void Validate()
     {
@@ -31,8 +32,8 @@ public record TaskListOptionsItem
     public TaskListOptionsItemTitle? Title { get; set; }
     public TaskListOptionsItemHint? Hint { get; set; }
     public TaskListOptionsItemStatus? Status { get; set; }
-    public string? Href { get; set; }
-    public string? Classes { get; set; }
+    public IHtmlContent? Href { get; set; }
+    public IHtmlContent? Classes { get; set; }
 
     internal void Validate(int itemIndex)
     {
@@ -55,8 +56,8 @@ public record TaskListOptionsItem
 public record TaskListOptionsItemTitle
 {
     public string? Text { get; set; }
-    public string? Html { get; set; }
-    public string? Classes { get; set; }
+    public IHtmlContent? Html { get; set; }
+    public IHtmlContent? Classes { get; set; }
 
     internal void Validate(int itemIndex)
     {
@@ -70,15 +71,15 @@ public record TaskListOptionsItemTitle
 public record TaskListOptionsItemHint
 {
     public string? Text { get; set; }
-    public string? Html { get; set; }
+    public IHtmlContent? Html { get; set; }
 }
 
 public record TaskListOptionsItemStatus
 {
     public TagOptions? Tag { get; set; }
     public string? Text { get; set; }
-    public string? Html { get; set; }
-    public string? Classes { get; set; }
+    public IHtmlContent? Html { get; set; }
+    public IHtmlContent? Classes { get; set; }
 
     internal void Validate(int itemIndex)
     {

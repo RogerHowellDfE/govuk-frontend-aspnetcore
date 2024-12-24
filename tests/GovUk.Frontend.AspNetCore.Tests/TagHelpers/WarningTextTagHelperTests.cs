@@ -54,9 +54,9 @@ public class WarningTextTagHelperTests
 
         // Assert
         Assert.NotNull(actualOptions);
-        Assert.Equal(HtmlEncoder.Default.Encode(content), actualOptions!.Html);
+        Assert.Equal(content, actualOptions!.Html?.ToHtmlString());
         Assert.Null(actualOptions.Text);
-        Assert.Equal(iconFallbackText, actualOptions.IconFallbackText);
+        Assert.Equal(iconFallbackText, actualOptions.IconFallbackText?.ToHtmlString());
         Assert.NotNull(actualOptions.Attributes);
         Assert.Collection(actualOptions.Attributes, kvp =>
         {

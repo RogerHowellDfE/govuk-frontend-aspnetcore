@@ -82,31 +82,31 @@ public class ButtonTagHelper : TagHelper
     /// <inheritdoc/>
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
-        var content = await output.GetChildContentAsync();
+        var content = (await output.GetChildContentAsync()).Snapshot();
 
         if (output.Content.IsModified)
         {
             content = output.Content;
         }
 
-        var attributes = output.Attributes.ToEncodedAttributeDictionary()
-            .Remove("class", out var classes);
+        var attributes = new EncodedAttributesDictionary(output.Attributes);
+        attributes.Remove("class", out var classes);
 
         var component = _componentGenerator.GenerateButton(new ButtonOptions()
         {
-            Element = Element,
-            Html = content?.ToHtmlString(),
-            Name = Name,
-            Type = Type,
-            Value = Value,
+            Element = Element.ToHtmlContent(),
+            Html = content,
+            Name = Name.ToHtmlContent(),
+            Type = Type.ToHtmlContent(),
+            Value = Value.ToHtmlContent(),
             Disabled = Disabled,
             Classes = classes,
             Attributes = attributes,
             PreventDoubleClick = PreventDoubleClick,
             IsStartButton = IsStartButton,
-            Id = Id
+            Id = Id.ToHtmlContent()
         });
 
-        output.WriteComponent(component);
+        component.WriteTo(output);
     }
 }

@@ -33,24 +33,24 @@ public class WarningTextTagHelper : TagHelper
     /// <inheritdoc/>
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
-        var content = await output.GetChildContentAsync();
+        var content = (await output.GetChildContentAsync()).Snapshot();
 
         if (output.Content.IsModified)
         {
             content = output.Content;
         }
 
-        var attributes = output.Attributes.ToEncodedAttributeDictionary()
-            .Remove("class", out var classes);
+        var attributes = new EncodedAttributesDictionary(output.Attributes);
+        attributes.Remove("class", out var classes);
 
         var component = _componentGenerator.GenerateWarningText(new WarningTextOptions()
         {
-            Html = content?.ToHtmlString(),
-            IconFallbackText = IconFallbackText,
+            Html = content,
+            IconFallbackText = IconFallbackText.ToHtmlContent(),
             Classes = classes,
             Attributes = attributes
         });
 
-        output.WriteComponent(component);
+        component.WriteTo(output);
     }
 }

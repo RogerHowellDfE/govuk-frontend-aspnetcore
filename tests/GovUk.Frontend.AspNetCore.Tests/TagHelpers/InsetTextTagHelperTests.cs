@@ -47,8 +47,8 @@ public class InsetTextTagHelperTests
 
         // Assert
         Assert.NotNull(actualOptions);
-        Assert.Equal(id, actualOptions!.Id);
+        Assert.Equal(id, actualOptions!.Id?.ToHtmlString());
         Assert.Null(actualOptions.Text);
-        Assert.Equal(html, actualOptions.Html);
+        Assert.Equal(html, actualOptions.Html?.ToHtmlString());
     }
 }
