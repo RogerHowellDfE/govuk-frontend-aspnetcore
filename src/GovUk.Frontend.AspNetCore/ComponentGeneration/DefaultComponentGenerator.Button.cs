@@ -14,7 +14,7 @@ public partial class DefaultComponentGenerator
         options.Validate();
 
         var classes = ($"govuk-button " + options.Classes).TrimEnd();
-        var element = options.Element.NormalizeEmptyString() ?? (options.Href.NormalizeEmptyString() is not null ? "a" : "button");
+        var element = options.GetElement();
 
         HtmlTag? iconHtml = null;
         if (options.IsStartButton == true)

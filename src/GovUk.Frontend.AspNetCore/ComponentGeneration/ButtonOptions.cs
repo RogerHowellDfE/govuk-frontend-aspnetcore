@@ -32,9 +32,9 @@ public class ButtonOptions
             throw new InvalidOptionsException(GetType(), $"{nameof(IsStartButton)} cannot be specified for 'input' elements.");
         }
 
-        if (Element != "button" && PreventDoubleClick == true)
+        if (GetElement() is not "button" and not "input" && PreventDoubleClick == true)
         {
-            throw new InvalidOptionsException(GetType(), $"{nameof(PreventDoubleClick)} can only be specified for 'button' elements.");
+            throw new InvalidOptionsException(GetType(), $"{nameof(PreventDoubleClick)} can only be specified for 'button' or 'input' elements.");
         }
 
         if (Element == "a" && Disabled is not null)
@@ -52,4 +52,7 @@ public class ButtonOptions
             throw new InvalidOptionsException(GetType(), $"{nameof(Html)} or {nameof(Text)} must be specified.");
         }
     }
+
+    internal string GetElement() =>
+        Element.NormalizeEmptyString() ?? (Href.NormalizeEmptyString() is not null ? "a" : "button");
 }

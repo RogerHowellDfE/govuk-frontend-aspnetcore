@@ -31,7 +31,7 @@ public partial class DefaultComponentGenerator
                     new HtmlTag("span")
                         .AddClass("govuk-visually-hidden")
                         .Text("Emergency")
-                        .After(new HtmlTag(null).Text("Exit this page"))
+                        .After(new HtmlTag(null).NoTag().Text("Exit this page"))
                         .ToHtmlString(),
                 Text = options.Text.NormalizeEmptyString(),
                 Classes = "govuk-button--warning govuk-exit-this-page__button govuk-js-exit-this-page-button",

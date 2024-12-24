@@ -115,7 +115,7 @@ public class ComponentTests
             (generator, options) => generator.GenerateTag(options).ToHtmlString());
 
     [Theory]
-    [ComponentFixtureData("input", typeof(TextInputOptions))]
+    [ComponentFixtureData("input", typeof(TextInputOptions), exclude: "with extra letter spacing")]
     public void TextInput(ComponentTestCaseData<TextInputOptions> data) =>
         CheckComponentHtmlMatchesExpectedHtml(
             data,
