@@ -100,13 +100,6 @@ internal interface IGovUkHtmlGenerator
         IHtmlContent content,
         AttributeDictionary attributes);
 
-    TagBuilder GeneratePagination(
-        IEnumerable<PaginationItemBase> items,
-        PaginationPrevious previous,
-        PaginationNext next,
-        string landmarkLabel,
-        AttributeDictionary attributes);
-
     TagBuilder GeneratePanel(
         int headingLevel,
         IHtmlContent titleContent,

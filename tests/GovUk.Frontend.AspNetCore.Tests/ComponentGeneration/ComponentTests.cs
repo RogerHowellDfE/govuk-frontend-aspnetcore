@@ -122,6 +122,13 @@ public class ComponentTests
             (generator, options) => generator.GenerateTextInput(options).ToHtmlString());
 
     [Theory]
+    [ComponentFixtureData("pagination", typeof(PaginationOptions))]
+    public void Pagination(ComponentTestCaseData<PaginationOptions> data) =>
+        CheckComponentHtmlMatchesExpectedHtml(
+            data,
+            (generator, options) => generator.GeneratePagination(options).ToHtmlString());
+
+    [Theory]
     [ComponentFixtureData("task-list", typeof(TaskListOptions))]
     public void TaskList(ComponentTestCaseData<TaskListOptions> data) =>
         CheckComponentHtmlMatchesExpectedHtml(

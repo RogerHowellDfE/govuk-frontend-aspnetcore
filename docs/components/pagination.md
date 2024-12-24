@@ -6,11 +6,11 @@
 
 ```razor
 <govuk-pagination>
-    <govuk-pagination-previous href="#" />
-    <govuk-pagination-item href="#">1</govuk-pagination-item>
-    <govuk-pagination-item href="#" is-current="true">2</govuk-pagination-item>
-    <govuk-pagination-item href="#">3</govuk-pagination-item>
-    <govuk-pagination-next href="#" />
+    <previous href="#" />
+    <item href="#">1</item>
+    <item href="#" current="true">2</item>
+    <item href="#">3</item>
+    <next href="#" />
 </govuk-pagination>
 ```
 
@@ -20,8 +20,8 @@
 
 ```razor
 <govuk-pagination>
-    <govuk-pagination-previous href="#" label-text="Applying for a provisional lorry or bus licence" />
-    <govuk-pagination-next href="#" label-text="Driver CPC part 1 test: theory" />
+    <previous href="#" label-text="Applying for a provisional lorry or bus licence" />
+    <next href="#" label-text="Driver CPC part 1 test: theory" />
 </govuk-pagination>
 ```
 
@@ -31,15 +31,15 @@
 
 ```razor
 <govuk-pagination>
-    <govuk-pagination-previous href="#" />
-    <govuk-pagination-item href="#">1</govuk-pagination-item>
-    <govuk-pagination-ellipsis />
-    <govuk-pagination-item href="#">6</govuk-pagination-item>
-    <govuk-pagination-item href="#" is-current="true">7</govuk-pagination-item>
-    <govuk-pagination-item href="#">8</govuk-pagination-item>
-    <govuk-pagination-ellipsis />
-    <govuk-pagination-item href="#">42</govuk-pagination-item>
-    <govuk-pagination-next href="#" />
+    <previous href="#" />
+    <item href="#">1</item>
+    <ellipsis />
+    <item href="#">6</item>
+    <item href="#" current="true">7</item>
+    <item href="#">8</item>
+    <ellipsis />
+    <item href="#">42</item>
+    <next href="#" />
 </govuk-pagination>
 ```
 
@@ -49,11 +49,11 @@
 
 ### `<govuk-pagination>`
 
-| Attribute | Type | Description |
-| --- | --- | --- |
-| `landmark-label` | `string` | The label for the navigation landmark that wraps the pagination. The default is `results`. |
+| Attribute | Type | Description                                                                                                              |
+| --- | --- |--------------------------------------------------------------------------------------------------------------------------|
+| `landmark-label` | `string` | The label for the navigation landmark that wraps the pagination. If not specified, 'Pagination' will be used. |
 
-### `<govuk-pagination-previous>`
+### `<previous>`
 
 | Attribute | Type | Description |
 | --- | --- | --- |
@@ -64,22 +64,22 @@
 The content is the text for the link to the previous page. The default is `Previous page`.\
 Must be inside a `<govuk-pagination>` element.
 
-### `<govuk-pagination-item>`
+### `<item>`
 
 | Attribute | Type | Description |
 | --- | --- | --- |
 | (link attributes) | | If specified generates an `href` attribute using the specified values. See [documentation on links](../links.md) for more information. |
-| `is-current` | `bool` | Whether this item is the current page the user is on. By default this is determined by comparing the current URL to this item's generated `href` attribute. |
+| `current` | `bool` | Whether this item is the current page the user is on. By default this is determined by comparing the current URL to this item's generated `href` attribute. |
 | `visually-hidden-text` | `string` | The visually hidden text for the pagination item. The default is `Page <pagination item text>`. |
 
 The content is the pagination item text - usually a page number.\
 Must be inside a `<govuk-pagination>` element.
 
-### `<govuk-pagination-ellipsis>`
+### `<ellipsis>`
 
 Must be inside a `<govuk-pagination>` element.
 
-### `<govuk-pagination-next>`
+### `<next>`
 
 | Attribute | Type | Description |
 | --- | --- | --- |

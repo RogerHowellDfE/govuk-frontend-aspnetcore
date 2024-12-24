@@ -1,71 +1,76 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GovUk.Frontend.AspNetCore.ComponentGeneration;
 using GovUk.Frontend.AspNetCore.HtmlGeneration;
 
 namespace GovUk.Frontend.AspNetCore.TagHelpers;
 
 internal class PaginationContext
 {
-    private readonly List<PaginationItemBase> _items = new();
+    private readonly List<PaginationOptionsItem> _items = new();
+    private string? _firstItemTagName;
+    private string? _nextTagName;
 
-    public IReadOnlyCollection<PaginationItemBase> Items => _items.AsReadOnly();
+    public IReadOnlyCollection<PaginationOptionsItem> Items => _items.AsReadOnly();
 
-    public PaginationNext? Next { get; private set; }
+    public PaginationOptionsNext? Next { get; private set; }
 
-    public PaginationPrevious? Previous { get; private set; }
+    public PaginationOptionsPrevious? Previous { get; private set; }
 
-    public void AddItem(PaginationItemBase item)
+    private static string[] PreviousTagNames = [PaginationPreviousTagHelper.ShortTagName, PaginationPreviousTagHelper.TagName];
+
+    private static string[] NextTagNames = [PaginationNextTagHelper.ShortTagName, PaginationNextTagHelper.TagName];
+
+    public void AddItem(PaginationOptionsItem item, string tagName)
     {
-        Guard.ArgumentNotNull(nameof(item), item);
+        ArgumentNullException.ThrowIfNull(item);
 
         if (Next is not null)
         {
-            throw ExceptionHelper.ChildElementMustBeSpecifiedBefore(
-                item is PaginationItemEllipsis ? PaginationEllipsisItemTagHelper.TagName : PaginationItemTagHelper.TagName,
-                PaginationNextTagHelper.TagName);
+            throw ExceptionHelper.ChildElementMustBeSpecifiedBefore(tagName, _nextTagName!);
         }
 
         // Only one 'current' item is allowed.
-        if (item is PaginationItem paginationItem && paginationItem.IsCurrent && _items.OfType<PaginationItem>().Any(i => i.IsCurrent))
+        if (item.Current == true && _items.Any(i => i.Current == true))
         {
-            throw new InvalidOperationException($"Only one current {PaginationItemTagHelper.TagName} is permitted.");
+            throw new InvalidOperationException($"Only one Current <{tagName}> is permitted.");
         }
 
         _items.Add(item);
+        _firstItemTagName ??= tagName;
     }
 
-    public void SetNext(PaginationNext next)
+    public void SetNext(PaginationOptionsNext next, string tagName)
     {
-        Guard.ArgumentNotNull(nameof(next), next);
+        ArgumentNullException.ThrowIfNull(next);
 
         if (Next is not null)
         {
-            throw ExceptionHelper.OnlyOneElementIsPermittedIn(PaginationNextTagHelper.TagName, PaginationTagHelper.TagName);
+            throw ExceptionHelper.OnlyOneElementIsPermittedIn(NextTagNames, PaginationTagHelper.TagName);
         }
 
         Next = next;
+        _nextTagName = tagName;
     }
 
-    public void SetPrevious(PaginationPrevious previous)
+    public void SetPrevious(PaginationOptionsPrevious previous, string tagName)
     {
-        Guard.ArgumentNotNull(nameof(previous), previous);
+        ArgumentNullException.ThrowIfNull(previous);
 
         if (_items.Count != 0)
         {
-            throw ExceptionHelper.ChildElementMustBeSpecifiedBefore(
-                PaginationPreviousTagHelper.TagName,
-                _items[0] is PaginationItemEllipsis ? PaginationEllipsisItemTagHelper.TagName : PaginationItemTagHelper.TagName);
+            throw ExceptionHelper.ChildElementMustBeSpecifiedBefore(tagName, _firstItemTagName!);
         }
 
         if (Next is not null)
         {
-            throw ExceptionHelper.ChildElementMustBeSpecifiedBefore(PaginationPreviousTagHelper.TagName, PaginationNextTagHelper.TagName);
+            throw ExceptionHelper.ChildElementMustBeSpecifiedBefore(tagName, _nextTagName!);
         }
 
         if (Previous is not null)
         {
-            throw ExceptionHelper.OnlyOneElementIsPermittedIn(PaginationPreviousTagHelper.TagName, PaginationTagHelper.TagName);
+            throw ExceptionHelper.OnlyOneElementIsPermittedIn(PreviousTagNames, PaginationTagHelper.TagName);
         }
 
         Previous = previous;

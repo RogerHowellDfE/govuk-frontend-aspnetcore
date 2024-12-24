@@ -17,6 +17,9 @@ In additional, its `gfa-prepend-error-summary` attribute has been renamed to `pr
 The `prepend-error-summary` attribute can now be added to any element.
 If this attribute is `true` and there are any form components with errors within the element then an error summary will be prepended.
 
+### `<govuk-pagination-item>`
+The `is-current` attribute is renamed to `current`.
+
 ### `asp-for` attributes
 The `asp-for` attributes have been deprecated; the `for` attribute should be used instead.
 

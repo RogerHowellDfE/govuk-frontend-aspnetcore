@@ -41,6 +41,6 @@ public class PaginationPreviousTagHelperTests
         await tagHelper.ProcessAsync(context, output);
 
         // Assert
-        Assert.Equal("Previous page", paginationContext.Previous?.LabelText);
+        Assert.Equal("Previous page", paginationContext.Previous?.LabelText?.ToHtmlString());
     }
 }

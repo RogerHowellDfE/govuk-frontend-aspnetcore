@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using GovUk.Frontend.AspNetCore.ComponentGeneration;
 using GovUk.Frontend.AspNetCore.HtmlGeneration;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
@@ -9,10 +10,12 @@ namespace GovUk.Frontend.AspNetCore.TagHelpers;
 /// Represents the link to the next page in a GDS pagination component.
 /// </summary>
 [HtmlTargetElement(TagName, ParentTag = PaginationTagHelper.TagName)]
-[OutputElementHint(ComponentGenerator.PaginationNextElement)]
+[HtmlTargetElement(ShortTagName, ParentTag = PaginationTagHelper.TagName)]
+[OutputElementHint(DefaultComponentGenerator.PaginationNextElement)]
 public class PaginationNextTagHelper : TagHelper
 {
     internal const string TagName = "govuk-pagination-next";
+    internal const string ShortTagName = ShortTagNames.Next;
 
     private const string LabelTextAttributeName = "label-text";
     private const string LinkAttributesPrefix = "link-";
@@ -35,7 +38,7 @@ public class PaginationNextTagHelper : TagHelper
         var paginationContext = context.GetContextItem<PaginationContext>();
 
         var childContent = output.TagMode == TagMode.StartTagAndEndTag ?
-            await output.GetChildContentAsync() :
+            (await output.GetChildContentAsync()).Snapshot() :
             null;
 
         if (output.Content.IsModified)
@@ -43,22 +46,19 @@ public class PaginationNextTagHelper : TagHelper
             childContent = output.Content;
         }
 
-        string? href = null;
+        var attributes = new EncodedAttributesDictionary(output.Attributes);
+        attributes.Remove("href", out var href);
 
-        if (output.Attributes.TryGetAttribute("href", out var hrefAttribute))
-        {
-            href = hrefAttribute.Value.ToString();
-            output.Attributes.Remove(hrefAttribute);
-        }
-
-        paginationContext.SetNext(new PaginationNext()
-        {
-            Attributes = output.Attributes.ToAttributeDictionary(),
-            Href = href,
-            LabelText = LabelText,
-            LinkAttributes = LinkAttributes?.ToAttributeDictionary(),
-            Text = childContent
-        });
+        paginationContext.SetNext(
+            new PaginationOptionsNext()
+            {
+                Attributes = EncodedAttributesDictionary.FromDictionaryWithEncodedValues(LinkAttributes),
+                Href = href,
+                LabelText = LabelText.ToHtmlContent(),
+                ContainerAttributes = attributes,
+                Html = childContent
+            },
+            output.TagName);
 
         output.SuppressOutput();
     }

@@ -1,7 +1,6 @@
-using System.Diagnostics.CodeAnalysis;
+using System;
 using System.Threading.Tasks;
-using GovUk.Frontend.AspNetCore.HtmlGeneration;
-using Microsoft.AspNetCore.Mvc.TagHelpers;
+using GovUk.Frontend.AspNetCore.ComponentGeneration;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace GovUk.Frontend.AspNetCore.TagHelpers;
@@ -12,46 +11,39 @@ namespace GovUk.Frontend.AspNetCore.TagHelpers;
 [HtmlTargetElement(TagName)]
 [RestrictChildren(
     PaginationPreviousTagHelper.TagName,
+    PaginationPreviousTagHelper.ShortTagName,
     PaginationItemTagHelper.TagName,
+    PaginationItemTagHelper.ShortTagName,
     PaginationEllipsisItemTagHelper.TagName,
-    PaginationNextTagHelper.TagName)]
-[OutputElementHint(ComponentGenerator.PaginationElement)]
+    PaginationEllipsisItemTagHelper.ShortTagName,
+    PaginationNextTagHelper.TagName,
+    PaginationNextTagHelper.ShortTagName)]
+[OutputElementHint(DefaultComponentGenerator.PaginationElement)]
 public class PaginationTagHelper : TagHelper
 {
     internal const string TagName = "govuk-pagination";
 
     private const string LandmarkLabelAttributeName = "landmark-label";
 
-    private readonly IGovUkHtmlGenerator _htmlGenerator;
-    private string? _landmarkLabel = ComponentGenerator.PaginationDefaultLandmarkLabel;
+    private readonly IComponentGenerator _componentGenerator;
 
     /// <summary>
-    /// Creates a new <see cref="PaginationTagHelper"/>.
+    /// Creates a new <see cref="BackLinkTagHelper"/>.
     /// </summary>
-    public PaginationTagHelper()
-        : this(htmlGenerator: null)
+    public PaginationTagHelper(IComponentGenerator componentGenerator)
     {
-    }
-
-    internal PaginationTagHelper(IGovUkHtmlGenerator? htmlGenerator)
-    {
-        _htmlGenerator = htmlGenerator ?? new ComponentGenerator();
+        ArgumentNullException.ThrowIfNull(componentGenerator);
+        _componentGenerator = componentGenerator;
     }
 
     /// <summary>
     /// The label for the navigation landmark that wraps the pagination.
     /// </summary>
     /// <remarks>
-    /// The default is <c>results</c>.
-    /// Cannot be <c>null</c> or empty.
+    /// If not specified, 'Pagination' will be used.
     /// </remarks>
-    [DisallowNull]
     [HtmlAttributeName(LandmarkLabelAttributeName)]
-    public string? LandmarkLabel
-    {
-        get => _landmarkLabel;
-        set => _landmarkLabel = Guard.ArgumentNotNullOrEmpty(nameof(value), value);
-    }
+    public string? LandmarkLabel { get; set; }
 
     /// <inheritdoc/>
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
@@ -63,18 +55,19 @@ public class PaginationTagHelper : TagHelper
             await output.GetChildContentAsync();
         }
 
-        var tagBuilder = _htmlGenerator.GeneratePagination(
-            paginationContext.Items,
-            paginationContext.Previous,
-            paginationContext.Next,
-            LandmarkLabel,
-            output.Attributes.ToAttributeDictionary());
+        var attributes = new EncodedAttributesDictionary(output.Attributes);
+        attributes.Remove("class", out var classes);
 
-        output.TagName = tagBuilder.TagName;
-        output.TagMode = TagMode.StartTagAndEndTag;
+        var component = _componentGenerator.GeneratePagination(new PaginationOptions
+        {
+            Items = paginationContext.Items,
+            Previous = paginationContext.Previous,
+            Next = paginationContext.Next,
+            LandmarkLabel = LandmarkLabel.ToHtmlContent(),
+            Classes = classes,
+            Attributes = attributes
+        });
 
-        output.Attributes.Clear();
-        output.MergeAttributes(tagBuilder);
-        output.Content.SetHtmlContent(tagBuilder.InnerHtml);
+        component.WriteTo(output);
     }
 }

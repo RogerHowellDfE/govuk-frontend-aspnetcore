@@ -78,6 +78,12 @@ public interface IComponentGenerator
     HtmlTagBuilder GenerateLabel(LabelOptions options);
 
     /// <summary>
+    /// Generates a pagination component.
+    /// </summary>
+    /// <returns>An <see cref="HtmlTagBuilder"/> with the component's HTML.</returns>
+    HtmlTagBuilder GeneratePagination(PaginationOptions options);
+
+    /// <summary>
     /// Generates a phase banner component.
     /// </summary>
     /// <returns>An <see cref="HtmlTagBuilder"/> with the component's HTML.</returns>

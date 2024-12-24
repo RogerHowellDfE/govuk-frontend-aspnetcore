@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
+using GovUk.Frontend.AspNetCore.ComponentGeneration;
 using GovUk.Frontend.AspNetCore.HtmlGeneration;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -12,12 +13,14 @@ namespace GovUk.Frontend.AspNetCore.TagHelpers;
 /// Represents an item in a GDS pagination component.
 /// </summary>
 [HtmlTargetElement(TagName, ParentTag = PaginationTagHelper.TagName)]
-[OutputElementHint(ComponentGenerator.PaginationItemElement)]
+[HtmlTargetElement(ShortTagName, ParentTag = PaginationTagHelper.TagName)]
+[OutputElementHint(DefaultComponentGenerator.PaginationItemElement)]
 public class PaginationItemTagHelper : TagHelper
 {
     internal const string TagName = "govuk-pagination-item";
+    internal const string ShortTagName = ShortTagNames.Item;
 
-    private const string IsCurrentAttributeName = "is-current";
+    private const string CurrentAttributeName = "current";
     private const string VisuallyHiddenTextAttributeName = "visually-hidden-text";
 
     /// <summary>
@@ -26,8 +29,8 @@ public class PaginationItemTagHelper : TagHelper
     /// <remarks>
     /// By default this is determined by comparing the current URL to this item's generated <c>href</c> attribute.
     /// </remarks>
-    [HtmlAttributeName(IsCurrentAttributeName)]
-    public bool? IsCurrent { get; set; }
+    [HtmlAttributeName(CurrentAttributeName)]
+    public bool? Current { get; set; }
 
     /// <summary>
     /// The visually hidden text for the pagination item.
@@ -52,38 +55,35 @@ public class PaginationItemTagHelper : TagHelper
     {
         var paginationContext = context.GetContextItem<PaginationContext>();
 
-        var childContent = await output.GetChildContentAsync();
+        var childContent = (await output.GetChildContentAsync()).Snapshot();
 
         if (output.Content.IsModified)
         {
             childContent = output.Content;
         }
 
-        string? href = null;
+        var attributes = new EncodedAttributesDictionary(output.Attributes);
+        attributes.Remove("href", out var href);
 
-        if (output.Attributes.TryGetAttribute("href", out var hrefAttribute))
-        {
-            href = hrefAttribute.Value.ToString();
-            output.Attributes.Remove(hrefAttribute);
-        }
+        bool current = Current == true || ItemIsCurrentPage();
 
-        bool isCurrent = IsCurrent == true || ItemIsCurrentPage();
-
-        paginationContext.AddItem(new PaginationItem()
-        {
-            Attributes = output.Attributes.ToAttributeDictionary(),
-            Href = href,
-            IsCurrent = isCurrent,
-            Number = childContent,
-            VisuallyHiddenText = VisuallyHiddenText
-        });
+        paginationContext.AddItem(
+            new PaginationOptionsItem()
+            {
+                Attributes = attributes,
+                Href = href,
+                Current = current,
+                Number = childContent,
+                VisuallyHiddenText = VisuallyHiddenText.ToHtmlContent()
+            },
+            output.TagName);
 
         output.SuppressOutput();
 
         bool ItemIsCurrentPage()
         {
             var currentUrl = ViewContext!.HttpContext.Request.GetEncodedPathAndQuery();
-            return href == currentUrl;
+            return href?.ToHtmlString() == currentUrl;
         }
     }
 }

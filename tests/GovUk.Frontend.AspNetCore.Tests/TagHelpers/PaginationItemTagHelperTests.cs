@@ -37,7 +37,7 @@ public class PaginationItemTagHelperTests
 
         var tagHelper = new PaginationItemTagHelper()
         {
-            IsCurrent = true
+            Current = true
         };
 
         // Act
@@ -48,9 +48,8 @@ public class PaginationItemTagHelperTests
             paginationContext.Items,
             item =>
             {
-                var paginationItem = Assert.IsType<PaginationItem>(item);
-                Assert.True(paginationItem.IsCurrent);
-                Assert.Equal("Page 42", paginationItem.Number?.ToHtmlString());
+                Assert.True(item.Current);
+                Assert.Equal("Page 42", item.Number?.ToHtmlString());
             });
     }
 }

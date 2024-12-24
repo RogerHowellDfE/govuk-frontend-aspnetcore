@@ -1,4 +1,5 @@
 using System;
+using GovUk.Frontend.AspNetCore.ComponentGeneration;
 using GovUk.Frontend.AspNetCore.HtmlGeneration;
 using GovUk.Frontend.AspNetCore.TagHelpers;
 using Microsoft.AspNetCore.Html;
@@ -13,14 +14,14 @@ public class PaginationContextTests
     {
         // Arrange
         var context = new PaginationContext();
-        context.SetNext(new PaginationNext());
+        context.SetNext(new PaginationOptionsNext(), PaginationNextTagHelper.ShortTagName);
 
         // Act
-        var ex = Record.Exception(() => context.AddItem(new PaginationItemEllipsis()));
+        var ex = Record.Exception(() => context.AddItem(new PaginationOptionsItem() { Ellipsis = true }, PaginationEllipsisItemTagHelper.ShortTagName));
 
         // Assert
         Assert.IsType<InvalidOperationException>(ex);
-        Assert.Equal("<govuk-pagination-ellipsis> must be specified before <govuk-pagination-next>.", ex.Message);
+        Assert.Equal("<ellipsis> must be specified before <next>.", ex.Message);
     }
 
     [Fact]
@@ -28,22 +29,26 @@ public class PaginationContextTests
     {
         // Arrange
         var context = new PaginationContext();
-        context.AddItem(new PaginationItem()
-        {
-            Number = new HtmlString("1"),
-            IsCurrent = true
-        });
+        context.AddItem(
+            new PaginationOptionsItem()
+            {
+                Number = new HtmlString("1"),
+                Current = true
+            },
+            tagName: PaginationItemTagHelper.ShortTagName);
 
         // Act
-        var ex = Record.Exception(() => context.AddItem(new PaginationItem()
-        {
-            Number = new HtmlString("2"),
-            IsCurrent = true
-        }));
+        var ex = Record.Exception(() => context.AddItem(
+            new PaginationOptionsItem()
+            {
+                Number = new HtmlString("2"),
+                Current = true
+            },
+            tagName: PaginationItemTagHelper.ShortTagName));
 
         // Assert
         Assert.IsType<InvalidOperationException>(ex);
-        Assert.Equal("Only one current govuk-pagination-item is permitted.", ex.Message);
+        Assert.Equal("Only one Current <item> is permitted.", ex.Message);
     }
 
     [Fact]
@@ -51,10 +56,14 @@ public class PaginationContextTests
     {
         // Arrange
         var context = new PaginationContext();
-        var item = new PaginationItemEllipsis();
+        var item = new PaginationOptionsItem()
+        {
+            Number = new HtmlString("1"),
+            Href = new HtmlString("#")
+        };
 
         // Act
-        context.AddItem(item);
+        context.AddItem(item, tagName: PaginationItemTagHelper.ShortTagName);
 
         // Assert
         Assert.Collection(context.Items, i => Assert.Same(item, i));
@@ -65,14 +74,14 @@ public class PaginationContextTests
     {
         // Arrange
         var context = new PaginationContext();
-        context.SetNext(new PaginationNext());
+        context.SetNext(new PaginationOptionsNext(), tagName: PaginationNextTagHelper.ShortTagName);
 
         // Act
-        var ex = Record.Exception(() => context.SetNext(new PaginationNext()));
+        var ex = Record.Exception(() => context.SetNext(new PaginationOptionsNext(), tagName: PaginationNextTagHelper.ShortTagName));
 
         // Assert
         Assert.IsType<InvalidOperationException>(ex);
-        Assert.Equal("Only one <govuk-pagination-next> element is permitted within each <govuk-pagination>.", ex.Message);
+        Assert.Equal("Only one <next> or <govuk-pagination-next> element is permitted within each <govuk-pagination>.", ex.Message);
     }
 
     [Fact]
@@ -80,10 +89,10 @@ public class PaginationContextTests
     {
         // Arrange
         var context = new PaginationContext();
-        var next = new PaginationNext();
+        var next = new PaginationOptionsNext();
 
         // Act
-        context.SetNext(next);
+        context.SetNext(next, tagName: PaginationNextTagHelper.ShortTagName);
 
         // Assert
         Assert.Same(next, context.Next);
@@ -94,14 +103,14 @@ public class PaginationContextTests
     {
         // Arrange
         var context = new PaginationContext();
-        context.SetNext(new PaginationNext());
+        context.SetNext(new PaginationOptionsNext(), tagName: PaginationNextTagHelper.ShortTagName);
 
         // Act
-        var ex = Record.Exception(() => context.SetPrevious(new PaginationPrevious()));
+        var ex = Record.Exception(() => context.SetPrevious(new PaginationOptionsPrevious(), tagName: PaginationPreviousTagHelper.ShortTagName));
 
         // Assert
         Assert.IsType<InvalidOperationException>(ex);
-        Assert.Equal("<govuk-pagination-previous> must be specified before <govuk-pagination-next>.", ex.Message);
+        Assert.Equal("<previous> must be specified before <next>.", ex.Message);
     }
 
     [Fact]
@@ -109,14 +118,14 @@ public class PaginationContextTests
     {
         // Arrange
         var context = new PaginationContext();
-        context.SetPrevious(new PaginationPrevious());
+        context.SetPrevious(new PaginationOptionsPrevious(), tagName: PaginationPreviousTagHelper.ShortTagName);
 
         // Act
-        var ex = Record.Exception(() => context.SetPrevious(new PaginationPrevious()));
+        var ex = Record.Exception(() => context.SetPrevious(new PaginationOptionsPrevious(), tagName: PaginationPreviousTagHelper.ShortTagName));
 
         // Assert
         Assert.IsType<InvalidOperationException>(ex);
-        Assert.Equal("Only one <govuk-pagination-previous> element is permitted within each <govuk-pagination>.", ex.Message);
+        Assert.Equal("Only one <previous> or <govuk-pagination-previous> element is permitted within each <govuk-pagination>.", ex.Message);
     }
 
     [Fact]
@@ -124,18 +133,20 @@ public class PaginationContextTests
     {
         // Arrange
         var context = new PaginationContext();
-        context.AddItem(new PaginationItem()
-        {
-            Number = new HtmlString("1"),
-            IsCurrent = true
-        });
+        context.AddItem(
+            new PaginationOptionsItem()
+            {
+                Number = new HtmlString("1"),
+                Current = true
+            },
+            tagName: PaginationItemTagHelper.ShortTagName);
 
         // Act
-        var ex = Record.Exception(() => context.SetPrevious(new PaginationPrevious()));
+        var ex = Record.Exception(() => context.SetPrevious(new PaginationOptionsPrevious(), tagName: PaginationPreviousTagHelper.ShortTagName));
 
         // Assert
         Assert.IsType<InvalidOperationException>(ex);
-        Assert.Equal("<govuk-pagination-previous> must be specified before <govuk-pagination-item>.", ex.Message);
+        Assert.Equal("<previous> must be specified before <item>.", ex.Message);
     }
 
     [Fact]
@@ -143,10 +154,10 @@ public class PaginationContextTests
     {
         // Arrange
         var context = new PaginationContext();
-        var previous = new PaginationPrevious();
+        var previous = new PaginationOptionsPrevious();
 
         // Act
-        context.SetPrevious(previous);
+        context.SetPrevious(previous, tagName: PaginationPreviousTagHelper.ShortTagName);
 
         // Assert
         Assert.Same(previous, context.Previous);

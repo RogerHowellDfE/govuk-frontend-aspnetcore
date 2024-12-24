@@ -41,6 +41,6 @@ public class PaginationEllipsisItemTagHelperTests
         // Assert
         Assert.Collection(
             paginationContext.Items,
-            item => Assert.IsType<PaginationItemEllipsis>(item));
+            item => Assert.True(item.Ellipsis));
     }
 }
