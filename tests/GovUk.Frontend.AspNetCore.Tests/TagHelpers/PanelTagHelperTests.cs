@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using GovUk.Frontend.AspNetCore.ComponentGeneration;
 using GovUk.Frontend.AspNetCore.HtmlGeneration;
 using GovUk.Frontend.AspNetCore.TagHelpers;
 using GovUk.Frontend.AspNetCore.TestCommon;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Moq;
 using Xunit;
 
 namespace GovUk.Frontend.AspNetCore.Tests.TagHelpers;
@@ -13,9 +15,12 @@ namespace GovUk.Frontend.AspNetCore.Tests.TagHelpers;
 public class PanelTagHelperTests
 {
     [Fact]
-    public async Task ProcessAsync_GeneratesExpectedOutput()
+    public async Task ProcessAsync_InvokesComponentGeneratorWithExpectedOptions()
     {
         // Arrange
+        var title = "title";
+        var body = "body";
+
         var context = new TagHelperContext(
             tagName: "govuk-panel",
             allAttributes: new TagHelperAttributeList(),
@@ -28,14 +33,18 @@ public class PanelTagHelperTests
             getChildContentAsync: (useCachedResult, encoder) =>
             {
                 var panelContext = (PanelContext)context.Items[typeof(PanelContext)];
-                panelContext.SetTitle(new HtmlString("Title"));
-                panelContext.SetBody(new HtmlString("Body"));
+                panelContext.SetTitle(new HtmlString(title), new EncodedAttributesDictionary(), PanelTitleTagHelper.ShortTagName);
+                panelContext.SetBody(new HtmlString(body), new EncodedAttributesDictionary(), PanelBodyTagHelper.ShortTagName);
 
                 var tagHelperContent = new DefaultTagHelperContent();
                 return Task.FromResult<TagHelperContent>(tagHelperContent);
             });
 
-        var tagHelper = new PanelTagHelper(new ComponentGenerator())
+        var componentGeneratorMock = new Mock<DefaultComponentGenerator>() { CallBase = true };
+        PanelOptions? actualOptions = null;
+        componentGeneratorMock.Setup(mock => mock.GeneratePanel(It.IsAny<PanelOptions>())).Callback<PanelOptions>(o => actualOptions = o);
+
+        var tagHelper = new PanelTagHelper(componentGeneratorMock.Object)
         {
             HeadingLevel = 3
         };
@@ -44,13 +53,10 @@ public class PanelTagHelperTests
         await tagHelper.ProcessAsync(context, output);
 
         // Assert
-        var expectedHtml = @"
-<div class=""govuk-panel--confirmation govuk-panel"">
-    <h3 class=""govuk-panel__title"">Title</h3>
-    <div class=""govuk-panel__body"">Body</div>
-</div>";
-
-        AssertEx.HtmlEqual(expectedHtml, output.ToHtmlString());
+        Assert.NotNull(actualOptions);
+        Assert.Equal(3, actualOptions.HeadingLevel);
+        Assert.Equal(title, actualOptions.TitleHtml?.ToHtmlString());
+        Assert.Equal(body, actualOptions.Html?.ToHtmlString());
     }
 
     [Fact]
@@ -69,13 +75,13 @@ public class PanelTagHelperTests
             getChildContentAsync: (useCachedResult, encoder) =>
             {
                 var panelContext = (PanelContext)context.Items[typeof(PanelContext)];
-                panelContext.SetBody(new HtmlString("Body"));
+                panelContext.SetBody(new HtmlString("Body"), new EncodedAttributesDictionary(), PanelBodyTagHelper.ShortTagName);
 
                 var tagHelperContent = new DefaultTagHelperContent();
                 return Task.FromResult<TagHelperContent>(tagHelperContent);
             });
 
-        var tagHelper = new PanelTagHelper(new ComponentGenerator())
+        var tagHelper = new PanelTagHelper(new DefaultComponentGenerator())
         {
             HeadingLevel = 3
         };
@@ -85,6 +91,6 @@ public class PanelTagHelperTests
 
         // Assert
         Assert.IsType<InvalidOperationException>(ex);
-        Assert.Equal("A <govuk-panel-title> element must be provided.", ex.Message);
+        Assert.Equal("A <panel-title> or <govuk-panel-title> element must be provided.", ex.Message);
     }
 }

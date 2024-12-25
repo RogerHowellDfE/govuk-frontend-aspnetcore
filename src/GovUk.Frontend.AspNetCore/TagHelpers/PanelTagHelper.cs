@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using GovUk.Frontend.AspNetCore.HtmlGeneration;
-using Microsoft.AspNetCore.Mvc.TagHelpers;
+using GovUk.Frontend.AspNetCore.ComponentGeneration;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace GovUk.Frontend.AspNetCore.TagHelpers;
@@ -10,48 +9,45 @@ namespace GovUk.Frontend.AspNetCore.TagHelpers;
 /// Generates a GDS panel component.
 /// </summary>
 [HtmlTargetElement(TagName)]
-[OutputElementHint(ComponentGenerator.PanelElement)]
-[RestrictChildren(PanelTitleTagHelper.TagName, PanelBodyTagHelper.TagName)]
+[OutputElementHint(DefaultComponentGenerator.PanelElement)]
+[RestrictChildren(PanelTitleTagHelper.TagName, PanelTitleTagHelper.ShortTagName, PanelBodyTagHelper.TagName, PanelBodyTagHelper.ShortTagName)]
 public class PanelTagHelper : TagHelper
 {
     internal const string TagName = "govuk-panel";
 
     private const string HeadingLevelAttributeName = "heading-level";
 
-    private readonly IGovUkHtmlGenerator _htmlGenerator;
-    private int _headingLevel = ComponentGenerator.PanelDefaultHeadingLevel;
+    private readonly IComponentGenerator _componentGenerator;
+    private int? _headingLevel;
 
     /// <summary>
-    /// Creates a new <see cref="PanelTagHelper"/>.
+    /// Creates a new <see cref="BackLinkTagHelper"/>.
     /// </summary>
-    public PanelTagHelper()
-        : this(null)
+    public PanelTagHelper(IComponentGenerator componentGenerator)
     {
-    }
-
-    internal PanelTagHelper(IGovUkHtmlGenerator? htmlGenerator = null)
-    {
-        _htmlGenerator = htmlGenerator ?? new ComponentGenerator();
+        ArgumentNullException.ThrowIfNull(componentGenerator);
+        _componentGenerator = componentGenerator;
     }
 
     /// <summary>
     /// The heading level.
     /// </summary>
     /// <remarks>
-    /// Must be between <c>1</c> and <c>6</c> (inclusive). The default is <c>1</c>.
+    /// Must be between <c>1</c> and <c>6</c> (inclusive). If not specified, <c>1</c> will be used.
     /// </remarks>
     [HtmlAttributeName(HeadingLevelAttributeName)]
-    public int HeadingLevel
+    public int? HeadingLevel
     {
         get => _headingLevel;
         set
         {
-            if (value < ComponentGenerator.PanelMinHeadingLevel ||
-                value > ComponentGenerator.PanelMaxHeadingLevel)
+            if (value is not null && (
+                value < DefaultComponentGenerator.PanelMinHeadingLevel ||
+                value > DefaultComponentGenerator.PanelMaxHeadingLevel))
             {
                 throw new ArgumentOutOfRangeException(
                     nameof(value),
-                    $"{nameof(HeadingLevel)} must be between {ComponentGenerator.PanelMinHeadingLevel} and {ComponentGenerator.PanelMaxHeadingLevel}.");
+                    $"{nameof(HeadingLevel)} must be between {DefaultComponentGenerator.PanelMinHeadingLevel} and {DefaultComponentGenerator.PanelMaxHeadingLevel}.");
             }
 
             _headingLevel = value;
@@ -70,17 +66,20 @@ public class PanelTagHelper : TagHelper
 
         panelContext.ThrowIfNotComplete();
 
-        var tagBuilder = _htmlGenerator.GeneratePanel(
-            HeadingLevel,
-            panelContext.Title,
-            panelContext.Body,
-            output.Attributes.ToAttributeDictionary());
+        var attributes = new EncodedAttributesDictionary(output.Attributes);
+        attributes.Remove("class", out var classes);
 
-        output.TagName = tagBuilder.TagName;
-        output.TagMode = TagMode.StartTagAndEndTag;
+        var component = _componentGenerator.GeneratePanel(new PanelOptions
+        {
+            TitleHtml = panelContext.Title?.Content,
+            TitleAttributes = panelContext.Title?.Attributes,
+            HeadingLevel = HeadingLevel,
+            Html = panelContext.Body?.Content,
+            BodyAttributes = panelContext.Body?.Attributes,
+            Classes = classes,
+            Attributes = attributes
+        });
 
-        output.Attributes.Clear();
-        output.MergeAttributes(tagBuilder);
-        output.Content.SetHtmlContent(tagBuilder.InnerHtml);
+        component.WriteTo(output);
     }
 }

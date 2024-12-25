@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using GovUk.Frontend.AspNetCore.ComponentGeneration;
 using GovUk.Frontend.AspNetCore.TagHelpers;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Razor.TagHelpers;
@@ -41,7 +42,7 @@ public class PanelTitleTagHelperTests
         await tagHelper.ProcessAsync(context, output);
 
         // Assert
-        Assert.Equal("The title", panelContext.Title?.ToHtmlString());
+        Assert.Equal("The title", panelContext.Title?.Content.ToHtmlString());
     }
 
     [Fact]
@@ -49,7 +50,7 @@ public class PanelTitleTagHelperTests
     {
         // Arrange
         var panelContext = new PanelContext();
-        panelContext.SetTitle(new HtmlString("The title"));
+        panelContext.SetTitle(new HtmlString("The title"), new EncodedAttributesDictionary(), PanelTitleTagHelper.ShortTagName);
 
         var context = new TagHelperContext(
             tagName: "govuk-panel-title",
@@ -85,7 +86,7 @@ public class PanelTitleTagHelperTests
     {
         // Arrange
         var panelContext = new PanelContext();
-        panelContext.SetBody(new HtmlString("The body"));
+        panelContext.SetBody(new HtmlString("The body"), new EncodedAttributesDictionary(), PanelBodyTagHelper.ShortTagName);
 
         var context = new TagHelperContext(
             tagName: "govuk-panel-title",
@@ -113,6 +114,6 @@ public class PanelTitleTagHelperTests
 
         // Assert
         Assert.IsType<InvalidOperationException>(ex);
-        Assert.Equal("<govuk-panel-title> must be specified before <govuk-panel-body>.", ex.Message);
+        Assert.Equal("<govuk-panel-title> must be specified before <panel-body>.", ex.Message);
     }
 }

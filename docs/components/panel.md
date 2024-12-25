@@ -6,10 +6,10 @@
 
 ```razor
 <govuk-panel heading-level="2">
-    <govuk-panel-title>Application complete</govuk-panel-title>
-    <govuk-panel-body>
+    <panel-title>Application complete</panel-title>
+    <panel-body>
         Your reference number<br><strong>HDJ2123F</strong>
-    </govuk-panel-body>
+    </panel-body>
 </govuk-panel>
 ```
 
@@ -19,17 +19,17 @@
 
 ### `<govuk-panel>`
 
-| Attribute | Type | Description |
-| --- | --- | --- |
-| `heading-level` | `int` | The heading level. Must be between `1` and `6` (inclusive). The default is `1`. |
+| Attribute | Type | Description                                                                                     |
+| --- | --- |-------------------------------------------------------------------------------------------------|
+| `heading-level` | `int` | The heading level. Must be between `1` and `6` (inclusive). If not specified, `1` will be used. |
 
-### `<govuk-panel-title>`
+### `<panel-title>`
 
 *Required*\
 The content is the HTML to use within the panel title.\
 Must be inside a `<govuk-panel>` element.
 
-### `<govuk-panel-body>`
+### `<panel-body>`
 
 The content is the HTML to use within the panel content.\
 Must be inside a `<govuk-panel>` element.

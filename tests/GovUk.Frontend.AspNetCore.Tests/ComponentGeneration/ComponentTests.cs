@@ -122,6 +122,13 @@ public class ComponentTests
             (generator, options) => generator.GenerateTextInput(options).ToHtmlString());
 
     [Theory]
+    [ComponentFixtureData("panel", typeof(PanelOptions))]
+    public void Panel(ComponentTestCaseData<PanelOptions> data) =>
+        CheckComponentHtmlMatchesExpectedHtml(
+            data,
+            (generator, options) => generator.GeneratePanel(options).ToHtmlString());
+
+    [Theory]
     [ComponentFixtureData("pagination", typeof(PaginationOptions))]
     public void Pagination(ComponentTestCaseData<PaginationOptions> data) =>
         CheckComponentHtmlMatchesExpectedHtml(

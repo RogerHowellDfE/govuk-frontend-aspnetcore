@@ -1,46 +1,55 @@
+using System;
+using GovUk.Frontend.AspNetCore.ComponentGeneration;
 using Microsoft.AspNetCore.Html;
 
 namespace GovUk.Frontend.AspNetCore.TagHelpers;
 
 internal class PanelContext
 {
-    public IHtmlContent? Body { get; private set; }
-    public IHtmlContent? Title { get; private set; }
+    private string? _bodyTagName;
 
-    public void SetBody(IHtmlContent content)
+    public (IHtmlContent Content, EncodedAttributesDictionary Attributes)? Body { get; private set; }
+    public (IHtmlContent Content, EncodedAttributesDictionary Attributes)? Title { get; private set; }
+
+    public void SetBody(IHtmlContent content, EncodedAttributesDictionary attributes, string tagName)
     {
-        Guard.ArgumentNotNull(nameof(content), content);
+        ArgumentNullException.ThrowIfNull(content);
+        ArgumentNullException.ThrowIfNull(attributes);
+        ArgumentNullException.ThrowIfNull(tagName);
 
         if (Body != null)
         {
-            throw ExceptionHelper.OnlyOneElementIsPermittedIn(PanelBodyTagHelper.TagName, PanelTagHelper.TagName);
+            throw ExceptionHelper.OnlyOneElementIsPermittedIn(tagName, PanelTagHelper.TagName);
         }
 
-        Body = content;
+        Body = (content, attributes);
+        _bodyTagName = tagName;
     }
 
-    public void SetTitle(IHtmlContent content)
+    public void SetTitle(IHtmlContent content, EncodedAttributesDictionary attributes, string tagName)
     {
-        Guard.ArgumentNotNull(nameof(content), content);
+        ArgumentNullException.ThrowIfNull(content);
+        ArgumentNullException.ThrowIfNull(attributes);
+        ArgumentNullException.ThrowIfNull(tagName);
 
         if (Title != null)
         {
-            throw ExceptionHelper.OnlyOneElementIsPermittedIn(PanelTitleTagHelper.TagName, PanelTagHelper.TagName);
+            throw ExceptionHelper.OnlyOneElementIsPermittedIn(tagName, PanelTagHelper.TagName);
         }
 
         if (Body != null)
         {
-            throw ExceptionHelper.ChildElementMustBeSpecifiedBefore(PanelTitleTagHelper.TagName, PanelBodyTagHelper.TagName);
+            throw ExceptionHelper.ChildElementMustBeSpecifiedBefore(tagName, _bodyTagName!);
         }
 
-        Title = content;
+        Title = (content, attributes);
     }
 
     public void ThrowIfNotComplete()
     {
         if (Title == null)
         {
-            throw ExceptionHelper.AChildElementMustBeProvided(PanelTitleTagHelper.TagName);
+            throw ExceptionHelper.AChildElementMustBeProvided([PanelTitleTagHelper.ShortTagName, PanelTitleTagHelper.TagName]);
         }
     }
 }

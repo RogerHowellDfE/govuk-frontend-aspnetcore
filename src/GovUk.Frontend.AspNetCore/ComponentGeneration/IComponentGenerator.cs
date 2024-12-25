@@ -84,6 +84,12 @@ public interface IComponentGenerator
     HtmlTagBuilder GeneratePagination(PaginationOptions options);
 
     /// <summary>
+    /// Generates a panel component.
+    /// </summary>
+    /// <returns>An <see cref="HtmlTagBuilder"/> with the component's HTML.</returns>
+    HtmlTagBuilder GeneratePanel(PanelOptions options);
+
+    /// <summary>
     /// Generates a phase banner component.
     /// </summary>
     /// <returns>An <see cref="HtmlTagBuilder"/> with the component's HTML.</returns>
