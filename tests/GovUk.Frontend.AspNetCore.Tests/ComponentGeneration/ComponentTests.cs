@@ -136,6 +136,13 @@ public class ComponentTests
             (generator, options) => generator.GeneratePagination(options).ToHtmlString());
 
     [Theory]
+    [ComponentFixtureData("skip-link", typeof(SkipLinkOptions))]
+    public void SkipLink(ComponentTestCaseData<SkipLinkOptions> data) =>
+        CheckComponentHtmlMatchesExpectedHtml(
+            data,
+            (generator, options) => generator.GenerateSkipLink(options).ToHtmlString());
+
+    [Theory]
     [ComponentFixtureData("task-list", typeof(TaskListOptions))]
     public void TaskList(ComponentTestCaseData<TaskListOptions> data) =>
         CheckComponentHtmlMatchesExpectedHtml(

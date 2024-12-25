@@ -96,6 +96,12 @@ public interface IComponentGenerator
     HtmlTagBuilder GeneratePhaseBanner(PhaseBannerOptions options);
 
     /// <summary>
+    /// Generates a skip link component.
+    /// </summary>
+    /// <returns>An <see cref="HtmlTagBuilder"/> with the component's HTML.</returns>
+    HtmlTagBuilder GenerateSkipLink(SkipLinkOptions options);
+
+    /// <summary>
     /// Generates a tag component.
     /// </summary>
     /// <returns>An <see cref="HtmlTagBuilder"/> with the component's HTML.</returns>

@@ -1,6 +1,6 @@
+using System;
 using System.Threading.Tasks;
-using GovUk.Frontend.AspNetCore.HtmlGeneration;
-using Microsoft.AspNetCore.Mvc.TagHelpers;
+using GovUk.Frontend.AspNetCore.ComponentGeneration;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace GovUk.Frontend.AspNetCore.TagHelpers;
@@ -9,61 +9,54 @@ namespace GovUk.Frontend.AspNetCore.TagHelpers;
 /// Generates a GDS skip link component.
 /// </summary>
 [HtmlTargetElement(TagName)]
-[OutputElementHint(ComponentGenerator.SkipLinkElement)]
+[OutputElementHint(DefaultComponentGenerator.SkipLinkElement)]
 public class SkipLinkTagHelper : TagHelper
 {
     internal const string TagName = "govuk-skip-link";
 
     private const string HrefAttributeName = "href";
 
-    private readonly IGovUkHtmlGenerator _htmlGenerator;
-
-    private string _href = ComponentGenerator.SkipLinkDefaultHref;
+    private readonly IComponentGenerator _componentGenerator;
 
     /// <summary>
     /// Creates a new <see cref="BackLinkTagHelper"/>.
     /// </summary>
-    public SkipLinkTagHelper()
-        : this(htmlGenerator: null)
+    public SkipLinkTagHelper(IComponentGenerator componentGenerator)
     {
-    }
-
-    internal SkipLinkTagHelper(IGovUkHtmlGenerator? htmlGenerator)
-    {
-        _htmlGenerator = htmlGenerator ?? new ComponentGenerator();
+        ArgumentNullException.ThrowIfNull(componentGenerator);
+        _componentGenerator = componentGenerator;
     }
 
     /// <summary>
     /// The <c>href</c> attribute for the link.
     /// </summary>
     /// <remarks>
-    /// The default is <c>&quot;#content&quot;</c>.
-    /// Cannot be <c>null</c> or empty.
+    /// If not specified, <c>#content</c> will be used.
     /// </remarks>
     [HtmlAttributeName(HrefAttributeName)]
-    public string Href
-    {
-        get => _href;
-        set => _href = Guard.ArgumentNotNullOrEmpty(nameof(value), value);
-    }
+    public string? Href { get; set; }
 
     /// <inheritdoc/>
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
-        var childContent = await output.GetChildContentAsync();
+        var childContent = (await output.GetChildContentAsync()).Snapshot();
 
         if (output.Content.IsModified)
         {
             childContent = output.Content;
         }
 
-        var tagBuilder = _htmlGenerator.GenerateSkipLink(Href, childContent, output.Attributes.ToAttributeDictionary());
+        var attributes = new EncodedAttributesDictionary(output.Attributes);
+        attributes.Remove("class", out var classes);
 
-        output.TagName = tagBuilder.TagName;
-        output.TagMode = TagMode.StartTagAndEndTag;
+        var component = _componentGenerator.GenerateSkipLink(new SkipLinkOptions
+        {
+            Html = childContent,
+            Href = Href.ToHtmlContent(),
+            Classes = classes,
+            Attributes = attributes
+        });
 
-        output.Attributes.Clear();
-        output.MergeAttributes(tagBuilder);
-        output.Content.SetHtmlContent(tagBuilder.InnerHtml);
+        component.WriteTo(output);
     }
 }
